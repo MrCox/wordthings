@@ -32,7 +32,4 @@ function wordgen(rack) {
 
 }
 
-var ex = wordgen('beaters')
-
-var group = crossfilter(ex).dimension( function(d) {return d})
-  .group( function(d) { return d.length}).all()
+console.log( wordgen('beaters'))

@@ -20,6 +20,7 @@ var width = content[0][0].clientWidth,
 var xScale = d3.scale.linear().domain([2, 28]).range([0, width]) 
 
 input.on('change', function() {
+  console.log('shit')
   var letters = this.value
   var words = wordgen( letters )
 
