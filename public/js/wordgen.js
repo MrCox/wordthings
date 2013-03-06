@@ -28,11 +28,23 @@ function wordgen(rack) {
   
   function reduceInitial(p, v) {return []}
 
-  return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
+  function splitAdd(p, v){
+    var l = v.length
+    try { 
+      p.groups[l-2].push(v)
+    } catch(e) {
+      p.groups[l-2] = [v]
+    }
+    return p
+  }
+
+  function splitRemove(p, v) {}
+  function splitInitial(p, v) {
+    return {'groups':[]}
+  }
+  return crossfilter(dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value())
+    .groupAll().reduce( splitAdd, splitRemove, splitInitial ).value()
 
 }
 
-var ex = wordgen('beaters')
 
-var group = crossfilter(ex).dimension( function(d) {return d})
-  .group( function(d) { return d.length}).all()
