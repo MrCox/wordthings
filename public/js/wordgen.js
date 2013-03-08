@@ -19,32 +19,20 @@ function wordgen(rack) {
         if (k<j) { w.shift(); k++ }
         else if (k==j) {break}
         }
-    if ( w.length == 0 ) { p.push( v ) }
-    }
+    if ( w.length == 0 ) { 
+      var l = v.length
+      try {
+        p.groups[l - 2].push(v)
+      } catch(e) {
+        p.groups[l - 2] = [v]
+      }
+    }}
     return p
   }
  
   function reduceRemove(p, v) {}
   
-  function reduceInitial(p, v) {return []}
-
-  function splitAdd(p, v){
-    var l = v.length
-    try { 
-      p.groups[l-2].push(v)
-    } catch(e) {
-      p.groups[l-2] = [v]
-    }
-    return p
+  function reduceInitial(p, v) {return {'groups':[]}
   }
-
-  function splitRemove(p, v) {}
-  function splitInitial(p, v) {
-    return {'groups':[]}
-  }
-  return crossfilter(dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value())
-    .groupAll().reduce( splitAdd, splitRemove, splitInitial ).value()
-
+  return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
 }
-
-
