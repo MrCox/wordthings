@@ -1,6 +1,7 @@
 var express = require('express'),
   app = express(),
-  http = require('http')
+  http = require('http'),
+  wordgen = require('./wordgen')
 
 app.configure( function() {
   app.set('port', process.env.PORT || 3000);
@@ -17,9 +18,12 @@ app.get('/gallop_safely', function(req, res) {
 
 var j = 0
 app.get('/', function(req, res) {
+    res.render('layout.jade', {pageTitle: 'wordthings' })
   j += 1
   console.log( j )
-    res.render('layout.jade', {pageTitle: 'fuck' })
+})
+app.get('/words', function(req, res) {
+  res.send(wordgen(req.query.lets))
 })
 http.createServer(app).listen(app.get('port'), function() {
   console.log('listening on port ' + app.get('port'));

@@ -1,17 +1,7 @@
-var content = d3.select('body')
-  .append('div')
-  .attr('class', 'row')
+var input = d3.select('#solver')
+  .style('border', '1px solid #ddd')
 
-var input = content.append('div')
-  .attr('class', 'large-4 columns')
-  .append('input')
-  .attr('type', 'text')
-  .attr('placeholder', 'put letters here')
-
-var graph = d3.select('body').append('div')
-  .attr('class', 'row')
-  .append('div')
-  .attr('class', 'large-12 columns')
+var graph = d3.select('#graph')
   .style('border', '1px solid #ddd')
 
 var svg = graph.append('svg')
@@ -19,14 +9,21 @@ var svg = graph.append('svg')
 var axis = d3.svg.axis()
 
 input.on('change', function() {
+  var letters = this.value
+  d3.xhr('/words/?lets='+letters, function(e, json) {
+    var words = d3.values(json)
+    console.log(words)
+    show_words();
+  })
+})
+    
+
+function show_words() {
   svg.selectAll('.groups').remove();
 
   svg.selectAll('.axis').remove();
 
-  var letters = this.value,
-    words = d3.values(wordgen( letters ))
-  console.log(words)
-    var w = graph[0][0].clientWidth,
+  var w = graph[0][0].clientWidth,
     h = d3.max( words, function(d) { 
         return d.length }) * 25 + 20,
     l = words.length,
@@ -83,5 +80,4 @@ input.on('change', function() {
     .text( function(d) { return d; })
 
   list.exit().remove()
-
- })
+ }
