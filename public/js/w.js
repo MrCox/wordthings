@@ -11,7 +11,7 @@ var input = content.append('div')
 var graph = d3.select('body').append('div')
   .attr('class', 'row')
   .append('div')
-  .attr('class', 'large-8 columns')
+  .attr('class', 'large-12 columns')
   .style('border', '1px solid #ddd')
 
 var svg = graph.append('svg')
@@ -30,29 +30,35 @@ input.on('change', function() {
     h = d3.max( words, function(d) { 
         return d.length }) * 25 + 20,
     l = words.length,
-    wl = d3.max(words, function(d) { return d[0].length}) * 9 * l + 20,
+    wl = d3.max(words, function(d) { return d[0].length}) * 8 * l + 20,
     lens = words.map( function(d) { return d[0].length }),
-    dist = lens.map(function(d, i) { return wl - wl*(2*i + 1)/(2*l) }),
     Lx = d3.scale.ordinal(),
     height,
-    width;
+    width,
+    dist;
+  
+  svg.attr('height', h)
 
+  if ( w >= wl ) {
+    dist = lens.map(function(d, i) { return w - w*(2*i + 1)/(2*l) })
+  } else {
+    dist = lens.map(function(d,i) { return wl - wl*(2*i + 1)/(2*l) })
+    svg.attr('width', wl)
+  }
+  
   svg.append('g')
     .attr('class', 'axis')
     .attr('transform', 'translate(0, 30)')
     .call(axis.scale(Lx.domain(lens).range(dist)).orient('top'))
-    
-    if ( h >= d3.select('html')[0][0].clientHeight ) {
+
+  if ( h >= d3.select('html')[0][0].clientHeight ) {
       height = d3.select('html')[0][0].clientHeight
-    } else { 
+  } else { 
       height = h
-    }
+  }
 
-  graph.style('height', height)
+  graph.style('height', height + 'px')
     .style('overflow', 'auto')
-
-  svg.attr('height', h)
-    .attr('width', wl)
 
   var groups = svg.selectAll('.groups')
     .data( words )
