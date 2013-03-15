@@ -8,22 +8,16 @@ var svg = graph.append('svg')
 
 var axis = d3.svg.axis()
 
-input.on('change', function() {
-  var letters = this.value
-  d3.xhr('/words/?lets='+letters, function(e, json) {
-    var words = d3.values(json)
-    console.log(words)
-    show_words();
-  })
-})
-    
+input.on('change', show_words)
 
 function show_words() {
   svg.selectAll('.groups').remove();
 
   svg.selectAll('.axis').remove();
 
-  var w = graph[0][0].clientWidth,
+  var letters = this.value,
+    words = d3.values(wordgen( letters )),
+    w = graph[0][0].clientWidth,
     h = d3.max( words, function(d) { 
         return d.length }) * 25 + 20,
     l = words.length,
@@ -34,6 +28,8 @@ function show_words() {
     width,
     dist;
   
+  var q = '/words/?lets=' + letters
+
   svg.attr('height', h)
 
   if ( w >= wl ) {

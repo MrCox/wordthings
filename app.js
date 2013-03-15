@@ -23,7 +23,9 @@ app.get('/', function(req, res) {
   console.log( j )
 })
 app.get('/words', function(req, res) {
-  res.send(wordgen(req.query.lets))
+  console.log('requested /words')
+  var w = wordgen(req.query.lets)
+  res.json(w)
 })
 http.createServer(app).listen(app.get('port'), function() {
   console.log('listening on port ' + app.get('port'));
