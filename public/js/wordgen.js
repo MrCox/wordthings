@@ -22,9 +22,9 @@ function wordgen(rack) {
     if ( w.length == 0 ) { 
       var l = v.length
       try {
-        p.groups[l - 2].push(v)
+        p[l - 2].push(v)
       } catch(e) {
-        p.groups[l - 2] = [v]
+        p[l - 2] = [v]
       }
     }}
     return p
@@ -32,7 +32,7 @@ function wordgen(rack) {
  
   function reduceRemove(p, v) {}
   
-  function reduceInitial(p, v) {return {'groups':[]}
+  function reduceInitial(p, v) {return {}
   }
   return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
 }

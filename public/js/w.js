@@ -24,15 +24,14 @@ input.on('change', function() {
   svg.selectAll('.axis').remove();
 
   var letters = this.value,
-    words = wordgen( letters ).groups,
-    w = graph[0][0].clientWidth,
+    words = d3.values(wordgen( letters ))
+  console.log(words)
+    var w = graph[0][0].clientWidth,
     h = d3.max( words, function(d) { 
-      try {
-        return d.length }
-      catch(e) {} }) * 25 + 20,
+        return d.length }) * 25 + 20,
     l = words.length,
+    wl = d3.max(words, function(d) { return d[0].length}) * 9 * l + 20,
     lens = words.map( function(d) { return d[0].length }),
-    wl = d3.max(lens) * l*10 + 20,
     dist = lens.map(function(d, i) { return wl - wl*(2*i + 1)/(2*l) }),
     Lx = d3.scale.ordinal(),
     height,
@@ -42,23 +41,18 @@ input.on('change', function() {
     .attr('class', 'axis')
     .attr('transform', 'translate(0, 30)')
     .call(axis.scale(Lx.domain(lens).range(dist)).orient('top'))
-    if ( h >= d3.select(graph)[0][0].scrollHeight ) {
-      height = d3.select('html')[0][0].scrollHeight 
+    
+    if ( h >= d3.select('html')[0][0].clientHeight ) {
+      height = d3.select('html')[0][0].clientHeight
     } else { 
       height = h
     }
 
-    if ( w <= wl ) {
-      width = wl
-    } else {
-      width = w
-    }
-  
-  graph.style('height', height + 'px')
+  graph.style('height', height)
     .style('overflow', 'auto')
 
   svg.attr('height', h)
-    .attr('width',wl) 
+    .attr('width', wl)
 
   var groups = svg.selectAll('.groups')
     .data( words )
@@ -67,14 +61,13 @@ input.on('change', function() {
 
   groups.enter()
     .append('g')
-    .attr('transform', function(d,i) { try {
-      return 'translate(' + Lx(d[0].length) + ',0)'}
-      catch(e) {}
+    .attr('transform', function(d,i) { 
+      return 'translate(' + Lx(d[0].length) + ',0)'
     })
     .attr('class', 'groups')
  
   var list = groups.selectAll('.words')
-    .data( function(d) { try{return d;} catch(e){} })
+    .data( function(d) { return d; })
     
   list.enter()
     .append('g')
@@ -83,6 +76,6 @@ input.on('change', function() {
     .append('text')
     .text( function(d) { return d; })
 
-   list.exit().remove()
+  list.exit().remove()
 
  })
