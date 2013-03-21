@@ -14,9 +14,41 @@ var panel = frame.append('div')
   .style('display', 'inline-block')
   .style('background', '#00001e')
   .style('overflow', 'auto')
+  .append('svg')
+  .attr('height', h)
+  .attr('width', '130%')
+  
+panel.append('text')
+  .attr('x', 20)
+  .attr('y', 30)
+  .style('fill', 'yellow')
+  .text('Tomorrow, a control panel will be ')
+
+panel.append('text')
+  .attr('x', 20)
+  .attr('y', 55)
+  .style('fill', 'yellow')
+  .text('here, with a bunch of settings.')
+
+panel.append('text')
+  .attr('x', 20)
+  .attr('y', 80)
+  .style('fill', 'yellow')
+  .text('For now, click on the map to add a circle!')
+
+panel.append('text')
+  .attr('x', 20)
+  .attr('y', 105)
+  .style('fill', 'yellow')
+  .text('The circles will represent galloping locations.')
+
+panel.append('text')
+  .attr('x', 20)
+  .attr('y', 130) 
+  .style('fill', 'yellow')
+  .text('--Until tomorrow!')
 
 var map = frame.append('div')
-  .attr('class', 'large-8 columns')
   .style('width', '80%')
   .style('height', h + 'px')
   .style('display', 'inline-block')
@@ -32,22 +64,9 @@ collection.append('image')
   .attr('width', 2500)
   .attr('height', 2500)
 
-collection.selectAll('.node')
-  .data(GTA_data)
-  .enter()
-  .append('g')
-  .attr('transform', function(d) { return 'translate(' + d.location[0] + ',' + d.location[1] + ')'})
-  .append('svg:circle')
-  .attr('r', 10)
-  .attr('class', 'node')
-  .style('fill', 'red')
-
 collection.on('click', function() {
-  console.log(d3.event)
   var coordinates = {'lx':d3.event.layerX, 'ly':d3.event.layerY,
     'ox':d3.event.offsetX, 'oy':d3.event.offsetY}
-
-  console.log(coordinates)
 
   collection.append('g')
     .datum( coordinates )
@@ -59,6 +78,7 @@ collection.on('click', function() {
     .attr('class', 'node')
     .attr('r', 10)
     .style('fill', 'blue')
+    .style('stroke', '#00ff00')
 })
 
  
