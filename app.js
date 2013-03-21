@@ -23,7 +23,6 @@ app.get('/', function(req, res) {
   console.log( j )
 })
 app.get('/words', function(req, res) {
-  console.log('requested /words')
   var w = wordgen(req.query.lets)
   res.json(w)
 })

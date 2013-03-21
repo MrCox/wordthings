@@ -9,8 +9,9 @@ var svg = graph.append('svg')
 var axis = d3.svg.axis()
 
 input.on('change', show_words)
-
+  
 function show_words() {
+  
   svg.selectAll('.groups').remove();
 
   svg.selectAll('.axis').remove();
