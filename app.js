@@ -14,7 +14,8 @@ app.configure( function() {
 })
 
 app.get('/gallop_safely', function(req, res) {
-  res.render('for_map.jade', {PageTitle: 'Gallop Safely!' })
+  res.render('mapauth.jade', {PageTitle: 'WHO IS YOUR FATHER?'})
+//  res.render('for_map.jade', {PageTitle: 'Gallop Safely!' })
 })
 
 var j = 0
@@ -26,6 +27,12 @@ app.get('/', function(req, res) {
 app.get('/words', function(req, res) {
   var w = wordgen(req.query.lets)
   res.json(w)
+})
+
+app.get('/mapauth', function(req, res) {
+  if (req.query.password == "The eyes are on the roofs and in the alleys.") {
+    res.render('for_map.jade', {PageTitle: 'Gallop Safely!'})
+  }
 })
 
 app.get('/mapdata', function(req, res) {

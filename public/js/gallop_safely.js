@@ -1,8 +1,6 @@
 var nodes = JSON.parse(GTA_data.nodes),
 links = JSON.parse(GTA_data.links)
 
-console.log(links)
-
 var b = d3.select(window)[0][0],
   w = b.innerWidth,
   h = b.innerHeight
@@ -33,36 +31,36 @@ var infoadd = d3.select('#infoadd')
 var for_examine = d3.select('#for_examine')
 
 function Map() {
-  var ev = {};
-  if (navigator.userAgent.indexOf('Firefox') != -1 && parseFloat(navigator.userAgent.substring(navigator.userAgent.indexOf('Firefox') + 8)) >= 3.6) 
-    { ev.offsetX = false } 
+//  var ev = {};
+//  if (navigator.userAgent.indexOf('Firefox') != -1 && parseFloat(navigator.userAgent.substring(navigator.userAgent.indexOf('Firefox') + 8)) >= 3.6) 
+//    { ev.offsetX = false } 
   
-  var linknodes = d3.select('#canvas').selectAll('.link')
-    .data(links)
+//  var linknodes = d3.select('#canvas').selectAll('.link')
+//    .data(links)
 
-  linknodes.enter().append('line')
-    .attr('x1', function(d) {
-      if (ev.offsetX == true) {
-        return nodes[ d.source ].ox
-      } else { return nodes[ d.source ].lx }
-    })
-    .attr('y1', function(d) {
-      if (ev.offsetX == true) {
-        return nodes[ d.source ].oy }
-      else { return nodes[d.source].ly}
-    })
-    .attr('x2', function(d) {
-      if (ev.offsetX == true) {
-        return nodes[ d.target ].ox }
-      else {return nodes[ d.target ].lx }
-    })
-    .attr('y2', function(d) {
-      if (ev.offsetX == true) {
-        return nodes[d.target].oy }
-      else { return nodes[d.target].ly}
-    })
-
-  linknodes.exit().remove();
+//  linknodes.enter().append('line')
+//    .attr('x1', function(d) {
+//      if (ev.offsetX == true) {
+//        return nodes[ d.source ].ox
+//      } else { return nodes[ d.source ].lx }
+ //   })
+//    .attr('y1', function(d) {
+//      if (ev.offsetX == true) {
+//        return nodes[ d.source ].oy }
+//      else { return nodes[d.source].ly}
+//    })
+//    .attr('x2', function(d) {
+//      if (ev.offsetX == true) {
+//        return nodes[ d.target ].ox }
+//      else {return nodes[ d.target ].lx }
+//    })
+//    .attr('y2', function(d) {
+//      if (ev.offsetX == true) {
+//        return nodes[d.target].oy }
+//      else { return nodes[d.target].ly}
+//    })
+//
+//  linknodes.exit().remove();
   
   var mapnodes = collection.selectAll('.node')
     .data(nodes)
@@ -88,7 +86,6 @@ function Map() {
 }
 
 Map();
-d3.select('#canvas').on('click', function() {console.log(d3.event)})
 
 nodetoggle.on('click', function() {
   var checked = d3.select(this)
@@ -397,6 +394,7 @@ function examine() {
       .on('click', function() {
         d3.select(current).remove();
         d3.select(this.parentElement.parentElement).remove();
+        var index = current.__data__.index
         nodes.splice( index, 1)
         save_data();
       })
