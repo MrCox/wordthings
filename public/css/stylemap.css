@@ -35,6 +35,16 @@ p { color: gray;
 
 b { color: #669999; }
 
+#gta { color: #85ffff;
+}
+
+#message { 
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 3px;
+  margin-left: 3px;
+  text-align: center;
+}
 .default { stroke: GhostWhite;
   fill: gray;
 }
