@@ -4,8 +4,27 @@ html
     title = PageTitle
     script(src = '/public/d3.min.js')
     script(src = '/public/crossfilter.min.js')
+    link(rel = 'stylesheet', href = '/public/css/stylemap.css')
     link(rel = 'stylesheet', href = '/public/css/normalize.css')
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
   body
+    #frame
+      #panel
+        #innerpanel
+          div.row
+            div.large-12.columns
+              a#nodetoggle.small.round.button.expand
+          div.row
+            div.large-12.columns
+              a#linktoggle.small.round.button.expand
+          div.row
+            #infoadd.large-12.columns
+          div.row
+            #for_examine.large-12.columns
+      #map
+        svg#canvas(width = 2500, height = 2500)
+          g#collection
+            image(xlink:href = '/public/css/map.png', width = 2500, height = 2500)
+    
     script(src = '/public/js/data.js')
     script(src = '/public/js/gallop_safely.js')
