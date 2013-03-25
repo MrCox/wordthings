@@ -1,1 +1,1 @@
-GTA_data = {'nodes':'[]','links':'[]'}
+GTA_data ={"nodes":"[{\"ox\":1248,\"oy\":1727,\"name\":\"Earth\",\"government\":\"Abolis\",\"content\":\"Origin of Human race.\",\"index\":0}]","links":"[]"}

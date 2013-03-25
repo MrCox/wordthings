@@ -45,6 +45,11 @@ b { color: #669999; }
   margin-left: 3px;
   text-align: center;
 }
+
+.entry {
+  color: #f2f2f2;
+}
+
 .default { stroke: Snow;
   fill: gray;
 }

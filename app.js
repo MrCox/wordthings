@@ -5,7 +5,7 @@ var express = require('express'),
   wordgen = require('./wordgen')
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -35,7 +35,7 @@ app.get('/gallop_safely', function(req, res) {
 app.get('/mapauth', function(req, res) {
   if (req.query.password == "The eyes are on the roofs and in the alleys.") {
     res.render('for_map.jade', {PageTitle: 'Gallop Safely!'})
-  }
+  } else { res.render('mapauth.jade', {PageTitle: "You F*&K3D up."})}
 })
 
 app.get('/mapdata', function(req, res) {

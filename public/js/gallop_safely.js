@@ -163,6 +163,7 @@ function add_link() {
 
     infoadd.append('div')
       .attr('class', 'row')
+      .style('border', '1px solid GhostWhite')
       .attr('id', 'current')
       .append('div')
       .attr('class', 'large-12 columns')
@@ -364,9 +365,9 @@ function examine() {
       .data(data)
       .enter().append('p')
       .style('color', 'GhostWhite')
-      .text(function(d) { 
+      .html(function(d) { 
         if (d.key == 'name' || d.key == 'government' || d.key == 'content' || d.key == 'target' || d.key == 'source' ) {
-          return d.key + ": " + d.value 
+          return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><p class="entry">' + d.value + '</p></div>'
         }
       })
   }
