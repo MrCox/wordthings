@@ -31,46 +31,37 @@ var infoadd = d3.select('#infoadd')
 var for_examine = d3.select('#for_examine')
 
 function Map() {
-//  var ev = {};
-//  if (navigator.userAgent.indexOf('Firefox') != -1 && parseFloat(navigator.userAgent.substring(navigator.userAgent.indexOf('Firefox') + 8)) >= 3.6) 
-//    { ev.offsetX = false } 
-  
-//  var linknodes = d3.select('#canvas').selectAll('.link')
-//    .data(links)
+  var linknodes = collection.selectAll('.link')
+    .data(links)
 
-//  linknodes.enter().append('line')
-//    .attr('x1', function(d) {
-//      if (ev.offsetX == true) {
-//        return nodes[ d.source ].ox
-//      } else { return nodes[ d.source ].lx }
- //   })
-//    .attr('y1', function(d) {
-//      if (ev.offsetX == true) {
-//        return nodes[ d.source ].oy }
-//      else { return nodes[d.source].ly}
-//    })
-//    .attr('x2', function(d) {
-//      if (ev.offsetX == true) {
-//        return nodes[ d.target ].ox }
-//      else {return nodes[ d.target ].lx }
-//    })
-//    .attr('y2', function(d) {
-//      if (ev.offsetX == true) {
-//        return nodes[d.target].oy }
-//      else { return nodes[d.target].ly}
-//    })
-//
-//  linknodes.exit().remove();
+  linknodes.enter().insert('line', 'g')
+    .attr('x1', function(d,i) {
+      d['index'] = i
+      return d.x1
+     })
+    .attr('y1', function(d) {
+      return d.y1
+    })
+    .attr('x2', function(d) {
+      return d.x2
+    })
+    .attr('y2', function(d) {
+      return d.y2
+    })
+    .attr('class', 'link')
+    .on('click', examine)
+    .on('mouseover', examine)
+    .on('mouseout', examine)
+  
+  linknodes.exit().remove();
   
   var mapnodes = collection.selectAll('.node')
     .data(nodes)
 
   mapnodes.enter().append('g')
     .attr('transform', function(d, i) {
-      var x = d.ox || d.lx,
-        y = d.oy || d.ly
-        d['index'] = i
-      return 'translate(' + x + ',' + y + ')'})
+      d['index'] = i
+      return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
     .attr('class', function(d) { 
       var p = d.government
@@ -79,6 +70,7 @@ function Map() {
       } 
       return 'node ' + d.government })
     .attr('r', 10)
+    .style('stroke-width', '2')
     .on('mouseover', examine)
     .on('mouseout', examine)
 
@@ -128,8 +120,10 @@ linktoggle.on('click', function() {
 })
 
 collection.on('click', function() {
-  var checked = d3.select('#nodetoggle').property('checked')
-  if (checked) { add_node()}
+  var checked = d3.select('#nodetoggle').property('checked'),
+    e = d3.event.srcElement || d3.event.currentTarget
+  
+  if (checked && d3.select(e).attr('id') == 'milkyway') { add_node()}
 })
 
 function linkcheck() {
@@ -157,14 +151,16 @@ function save_data() {
 var coordinates = {}
 
 function add_link() {
-  //d3.select('#linktoggle').property('checked', false).text('Adding links disabled')
-    var e = d3.event.srcElement || d3.event.currentTarget,
+  
+  var e = d3.event.srcElement || d3.event.currentTarget,
     d = e.__data__,
     ev = d3.event
 
-  if (!(coordinates.source)) {
-    coordinates['source'] = d.index
-    
+  if (coordinates.source == null) {
+    coordinates['source'] = d.name
+    coordinates['x1'] = d.ox
+    coordinates['y1'] = d.oy
+
     infoadd.append('div')
       .attr('class', 'row')
       .attr('id', 'current')
@@ -175,39 +171,38 @@ function add_link() {
       .html(function() { 
         return "Source Node: <b>" + d.name + "</b>. Select destination node."
       })
-  } else {
-    coordinates['target'] = d.index
+  } else if ( coordinates.source != null && coordinates.source != d.name ) { 
+    coordinates['target'] = d.name
+    coordinates['index'] = links.length
+    coordinates['x2'] = d.ox
+    coordinates['y2'] = d.oy
 
-    var c = coordinates
+    var lc = coordinates
 
     d3.select('#current_cont').append('p')
       .html(function() {
         return "Destination Node: <b>" + d.name + '</b>'
       })
 
-    var newline = d3.select('#canvas').append('line')
-      .datum(coordinates)
+    var newline = collection
+      .insert('line', 'g')
+      .datum(lc)
       .attr('class', 'link')
       .attr('x1', function(d) {
-        if (ev.offsetX) {
-          return nodes[ d.source ].ox
-        } else { return nodes[ d.source ].lx }
+          return d.x1
       })
       .attr('y1', function(d) {
-        if (ev.offsetX) {
-          return nodes[ d.source ].oy }
-        else { return nodes[d.source].ly}
+          return d.y1
       })
       .attr('x2', function(d) {
-        if (ev.offsetX) {
-          return nodes[ d.target ].ox }
-        else {return nodes[ d.target ].lx }
+          return d.x2
       })
       .attr('y2', function(d) {
-        if (ev.offsetX) {
-          return nodes[d.target].oy }
-        else { return nodes[d.target].ly}
+          return d.y2
       })
+      .on('click', examine)
+      .on('mouseover', examine)
+      .on('mouseout', examine)
 
     d3.select('#current').append('div')
       .attr('class', 'large-12 columns')
@@ -215,7 +210,9 @@ function add_link() {
       .attr('class', 'small button round expand')
       .text('Register Connection')
       .on('click', function() { 
-        links.push(coordinates)
+        d3.select(this.parentElement.parentElement).remove();
+        d3.select('#linktoggle').property('checked', false)
+        links.push(lc)
         save_data();
         Map();
         linkcheck();
@@ -232,18 +229,21 @@ function add_link() {
         d3.select('#current').remove();
       })
 
-
     d3.select('#linktoggle').property('checked', false)
+      .text('Adding links disabled')
+
+    coordinates = {};
   }
 }
 
 function add_node() {
   d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
 
-  var text = false
+  var text = false,
+    ox = d3.event.offsetX || d3.event.layerX,
+    oy = d3.event.offsetY || d3.event.layerY
 
-  var coordinates = {'lx':d3.event.layerX, 'ly':d3.event.layerY,
-    'ox':d3.event.offsetX, 'oy':d3.event.offsetY}
+  var coordinates = {'ox': ox, 'oy': oy}
 
   var input = infoadd
     .append('div')
@@ -302,13 +302,12 @@ function add_node() {
     
   var newnode = collection.append('g')
     .datum( coordinates )
-    .attr('transform', function() {
-      var x = coordinates.ox || coordinates.lx,
-          y = coordinates.oy || coordinates.ly
-      return 'translate(' + x + ',' + y + ')'})
+    .attr('transform', function(d) {
+      return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
     .attr('class', 'node default')
     .attr('r', 10)
+    .style('stroke-width', '2')
     .on('mouseover', examine)
     .on('mouseout', examine)
 
@@ -366,7 +365,7 @@ function examine() {
       .enter().append('p')
       .style('color', 'GhostWhite')
       .text(function(d) { 
-        if (d.key != 'ly' && d.key != 'lx' && d.key != 'oy' && d.key != 'ox' && d.key != 'index') {
+        if (d.key == 'name' || d.key == 'government' || d.key == 'content' || d.key == 'target' || d.key == 'source' ) {
           return d.key + ": " + d.value 
         }
       })
@@ -392,11 +391,28 @@ function examine() {
       .attr('class', 'small button round expand')
       .text('remove from map')
       .on('click', function() {
-        d3.select(current).remove();
         d3.select(this.parentElement.parentElement).remove();
-        var index = current.__data__.index
-        nodes.splice( index, 1)
-        save_data();
+        var name = current.__data__.name,
+           index = current.__data__.index
+
+        if (d3.select(current).attr('class')[0] == 'n') {
+
+          var count = 0 
+          d3.selectAll('.link').each( function(d, i) {
+            if (d.source == name || d.target == name) {
+              links.splice( i - count, 1);
+              count += 1
+            }
+          })
+          nodes.splice(index,1)
+          
+        } else if (d3.select(current).attr('class')[0] == 'l') {
+            d3.select(current).remove(); 
+            links.splice( index, 1 );
+        }
+        d3.select(current).remove();
+        save_data()
+        Map()
       })
   }
 }

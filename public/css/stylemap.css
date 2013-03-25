@@ -27,7 +27,7 @@
 }
 
 .link { stroke: #85ffff;
-  stroke-width: 2.5;
+  stroke-width: 3.5;
 }
 
 p { color: gray; 
@@ -45,7 +45,7 @@ b { color: #669999; }
   margin-left: 3px;
   text-align: center;
 }
-.default { stroke: GhostWhite;
+.default { stroke: Snow;
   fill: gray;
 }
 
@@ -53,14 +53,14 @@ b { color: #669999; }
   fill: blue;
 }
 
-.Abolis { stroke: #ccdf00; 
-  fill: green;
+.Abolis { stroke: #ffff00;
+  fill: #006600;
 }
 
-.Federation { stroke: #33ff33;
-  fill: #1f1f5c;
+.Federation { stroke: #ff0066;
+  fill: #000038;
 }
 
 .Red.Corps { stroke: #85ffff;
-  fill: red;
+  fill: #cc0000; 
 }
