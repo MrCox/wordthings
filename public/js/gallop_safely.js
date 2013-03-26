@@ -260,6 +260,7 @@ function add_node() {
     
   var politics = input.append('input')
     .attr('type', 'text')
+    .style('border', '1px solid #ffff')
     .attr('id', 'politics')
     .attr('placeholder', 'Federation / Abolis / Red Corps / Other?')
     .attr('value', '')
@@ -268,7 +269,7 @@ function add_node() {
     .attr('placeholder', 'Any other info ( history, story etc )')
     .attr('id', 'content')
     .attr('value', '')
-    
+
   content.on('change', function() {
       coordinates['content'] = this.value
     })
@@ -350,26 +351,33 @@ function add_node() {
   }
 }
 
+function PlanetBio(){
+  var current = d3.event.srcElement||d3.event.currentTarget,
+  data = d3.entries(current.__data__)
+
+  for_examine.insert('div')
+    .attr('class', 'row')
+    .attr('id', 'info')
+    .append('div')
+    .attr('class', 'large-12 columns')
+    .selectAll('.entries')
+    .data(data)
+    .enter().append('p')
+    .style('color', 'GhostWhite')
+    .html(function(d) { 
+      if (d.key == 'name' || d.key == 'government' || d.key == 'content' || d.key == 'target' || d.key == 'source' ) {
+        return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
+      }
+  })
+}
+
 function examine() {
 
   var current = d3.event.srcElement || d3.event.currentTarget,
     data = d3.entries(current.__data__)
 
   if (d3.event.type == 'mouseover') {
-    for_examine.insert('div')
-      .attr('class', 'row')
-      .attr('id', 'info')
-      .append('div')
-      .attr('class', 'large-12 columns')
-      .selectAll('.entries')
-      .data(data)
-      .enter().append('p')
-      .style('color', 'GhostWhite')
-      .html(function(d) { 
-        if (d.key == 'name' || d.key == 'government' || d.key == 'content' || d.key == 'target' || d.key == 'source' ) {
-          return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><p class="entry">' + d.value + '</p></div>'
-        }
-      })
+        PlanetBio();
   }
   if (d3.event.type == 'mouseout') {
     d3.select('#info').remove();
