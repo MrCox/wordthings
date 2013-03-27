@@ -79,6 +79,9 @@ function Map() {
 
 Map();
 
+collection.attr('transform', 'scale(.65)')
+d3.select('#canvas').attr('height', 2500 * .65).attr('width', 2500*.65)
+
 nodetoggle.on('click', function() {
   var checked = d3.select(this)
     .property('checked')
@@ -374,13 +377,53 @@ function PlanetBio(){
 function examine() {
 
   var current = d3.event.srcElement || d3.event.currentTarget,
-    data = d3.entries(current.__data__)
+    data = d3.entries(current.__data__),
+    ds = current.__data__
 
   if (d3.event.type == 'mouseover') {
         PlanetBio();
+        if (d3.select(current).attr('class')[0] == 'n') {
+          var connections = d3.select('#info')
+            .append('div')
+            .attr('class', 'row')
+            .style('text-align', 'center')
+            .html('<b>Connections</b>')
+            
+          d3.selectAll('.link').each( function(d) {
+            if (d.source == ds.name || d.target == ds.name) {
+              d3.select(this).style('stroke', '#e60000')
+              if (d.source == ds.name) {
+                d3.selectAll('.node')
+                  .each(function(da) {
+                   if (da.name == d.target) {
+                     connections.append('div')
+                       .attr('class', 'row')
+                       .style('text-align', 'center')
+                       .html('<p class = "entry">' + da.name + '</p>')
+                   }
+                  })
+              }
+              else if (d.target == ds.name) {
+                d3.selectAll('.node')
+                  .each(function(da) {
+                    if (da.name == d.source) {
+                      connections.append('div')
+                        .attr('class', 'row')
+                        .style('text-align', 'center')
+                        .html('<p class = "entry">' + da.name + '</p>')
+                    }
+                  })
+                }
+             }
+          })
+        }
   }
   if (d3.event.type == 'mouseout') {
     d3.select('#info').remove();
+    if (d3.select(current).attr('class')[0] == 'n') {
+      d3.selectAll('.link')
+        .style('stroke', '#85ffff')
+    }
   }
   if (d3.event.type == 'click') {
     var r = d3.select('#info')
