@@ -63,6 +63,7 @@ function Map() {
       d['index'] = i
       return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
+    .attr('id', function(d) { if (d.name == 'Pericurat System') {return d.name[0]}})
     .attr('class', function(d) { 
       var p = d.government
       if (!((p=='Federation')||(p=='Abolis')||(p=='Other')||(p=='Red Corps'))) {
@@ -469,3 +470,54 @@ function examine() {
   }
 }
 
+d3.selectAll('.node').filter(function(d) { return d.name == 'Pericurat System' })
+  .on('click', function() {
+  var planet = d3.select('#P')[0][0].__data__
+    var nodes = [{'name':'Rhemos'}, {'name':'Shaethos'},planet]
+    var links = [{'source':2, 'target':0}, {'source':2,'target':1}]
+
+    var link = d3.select('#collection')
+      .selectAll('.sublink')
+      .data(links)
+
+    link.enter().append('line')
+      .attr('class', 'link sublink')
+
+    var node = d3.select('#collection')
+      .selectAll('.subnode')
+      .data(nodes)
+
+    node.enter().append('circle')
+      .attr('class', function() { return 'node ' + planet.government}) 
+      .attr('id', 'shit')
+      .attr('cx', function() { return planet.ox })
+      .attr('cy', function() { return planet.oy})
+      .attr('r', 8)
+      .on('mouseover', examine)
+      .on('mouseout', examine)
+      .on('click', examine)
+    
+    var force = d3.layout.force()
+      .nodes(nodes)
+      .gravity(.5)
+      .linkDistance(20)
+      .links(links)
+      .charge('-1000')
+      .on('tick', tick)
+      .size([2*planet.ox,2*planet.oy])
+      .start()
+
+    node.filter(function(d) { return d.name == 'Pericurat System'}).remove();
+    node.call(force.drag)
+  
+    function tick() {
+      link.attr('x1', function() { return planet.ox })
+        .attr('y1', function() { return planet.oy })
+        .attr('x2', function(d) {return d.target.x})
+        .attr('y2', function(d) {return d.target.y})
+
+
+      node.attr('cx', function(d) { return d.x})
+        .attr('cy', function(d) { return d.y})
+     }
+ })
