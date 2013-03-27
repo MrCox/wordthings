@@ -495,7 +495,6 @@ d3.selectAll('.node').filter(function(d) { return d.name == 'Pericurat System' }
       .attr('r', 8)
       .on('mouseover', examine)
       .on('mouseout', examine)
-      .on('click', examine)
     
     var force = d3.layout.force()
       .nodes(nodes)
@@ -515,8 +514,7 @@ d3.selectAll('.node').filter(function(d) { return d.name == 'Pericurat System' }
         .attr('y1', function() { return planet.oy })
         .attr('x2', function(d) {return d.target.x})
         .attr('y2', function(d) {return d.target.y})
-
-
+      
       node.attr('cx', function(d) { return d.x})
         .attr('cy', function(d) { return d.y})
      }
