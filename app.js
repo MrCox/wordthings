@@ -5,7 +5,7 @@ var express = require('express'),
   wordgen = require('./wordgen')
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -44,7 +44,6 @@ app.get('/mapdata', function(req, res) {
   for (var key in r) {
     thing[key] = r[key]
   }
-  
   fs.writeFile('./public/js/data.js', 'GTA_data =' + JSON.stringify(thing), function(err) {
     if (err) throw (err);
   })
@@ -53,6 +52,9 @@ app.get('/mapdata', function(req, res) {
   res.json(w)
 })
 
+app.get('/letterprobs', function(req, res) {
+  res.render('for_viz.jade', {PageTitle: 'Letter Viz'})
+})
 http.createServer(app).listen(app.get('port'), function() {
   console.log('listening on port ' + app.get('port'));
 })
