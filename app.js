@@ -52,9 +52,6 @@ app.get('/mapdata', function(req, res) {
   res.json(w)
 })
 
-app.get('/letterprobs', function(req, res) {
-  res.render('for_viz.jade', {PageTitle: 'Letter Viz'})
-})
 http.createServer(app).listen(app.get('port'), function() {
   console.log('listening on port ' + app.get('port'));
 })
