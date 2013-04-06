@@ -1,3 +1,5 @@
+// Map data
+
 var nodes = JSON.parse(GTA_data.nodes),
 links = JSON.parse(GTA_data.links)
 
@@ -5,21 +7,29 @@ var b = d3.select(window)[0][0],
   w = b.innerWidth,
   h = b.innerHeight
 
-var messages = 'GTA policy dictates that all system registry fields be completed upon form submission.'
+var messages = {
+  'entry-form' : 'GTA policy dictates that all system registry fields be completed upon form submission.',
+  'nodeOff' : 'Adding nodes disabled',
+  'nodeOn' : 'Adding nodes enabled',
+  'linkOff': 'Adding links disabled',
+  'linkOn' : 'Adding links enabled'
+}
 
 d3.select('#panel')
   .style('height', h + 'px')
+
+// defining variables for selections
 
 var panel = d3.select('#innerpanel'),
   pwidth = panel[0][0].clientWidth
 
 var nodetoggle = d3.select('#nodetoggle')
   .property('checked', false)
-  .text('Adding nodes disabled')
+  .text(messages.nodeOff)
 
 var linktoggle = d3.select('#linktoggle')
   .property('checked', false)
-  .text('Adding links disabled')
+  .text(messages.linkOff)
 
 var map = d3.select('#map')
   .style('height', h + 'px')
@@ -83,45 +93,31 @@ Map();
 collection.attr('transform', 'scale(.65)')
 d3.select('#canvas').attr('height', 2500 * .65).attr('width', 2500*.65)
 
-nodetoggle.on('click', function() {
-  var checked = d3.select(this)
-    .property('checked')
+function modeSwitch() {
+  var button = d3.select(this),
+    id = button.attr('id'),
+    checked = button.property('checked'),
+    boolMap = {true : false, false : true},
+    bMap = {'linktoggle' : ['linkOff', 'linkOn', 'nodeOff', '#nodetoggle'], 
+      'nodetoggle' : ['nodeOff', 'nodeOn', 'linkOff', '#linktoggle']
+    }
+  console.log(id)
 
-  if (checked) { 
-    d3.select(this)
-      .property('checked', false)
-      .text('Adding nodes disabled')
-  } else {
-    d3.select(this)
-      .property('checked', true)
-      .text('Adding nodes enabled')
+  button.property('checked', boolMap[checked])
+    .text(function() { 
+      return checked ? messages[bMap[id][0]] : messages[bMap[id][1]] 
+    })
 
-    d3.select('#linktoggle')
-      .property('checked', false)
-      .text('Adding links disabled')
-  }
+  d3.select(bMap[id][3])
+    .property('checked',false)
+    .text(messages[bMap[id][2]])
+}
 
-})
+// Set nodetoggle and linktoggle button events
 
-linktoggle.on('click', function() {
-  var checked = d3.select(this)
-    .property('checked')
+nodetoggle.on('click', modeSwitch)
 
-  if (checked) {
-    d3.select(this)
-      .property('checked', false)
-      .text('Adding links disabled')
-    
-  } else {
-    d3.select(this)
-      .property('checked', true)
-      .text('Adding links enabled')
-
-    d3.select('#nodetoggle')
-      .property('checked', false)
-      .text('Adding nodes disabled')
-  }
-})
+linktoggle.on('click', modeSwitch)
 
 collection.on('click', function() {
   var checked = d3.select('#nodetoggle').property('checked'),
