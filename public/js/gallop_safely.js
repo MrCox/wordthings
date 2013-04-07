@@ -15,6 +15,13 @@ var messages = {
   'linkOn' : 'Adding links enabled'
 }
 
+var classes = {
+  'Federation' : 'node Federation',
+  'Abolis' : 'node Abolis',
+  'Other' : 'node Other',
+  'Red Corps' : 'node Red Corps'
+}
+
 d3.select('#panel')
   .style('height', h + 'px')
 
@@ -39,6 +46,8 @@ var collection = d3.select('#collection')
 var infoadd = d3.select('#infoadd')
 
 var for_examine = d3.select('#for_examine')
+
+// Map-rendering function
 
 function Map() {
   var linknodes = collection.selectAll('.link')
@@ -73,13 +82,11 @@ function Map() {
       d['index'] = i
       return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
-    .attr('id', function(d) { if (d.name == 'Pericurat System') {return d.name[0]}})
-    .attr('class', function(d) { 
-      var p = d.government
-      if (!((p=='Federation')||(p=='Abolis')||(p=='Other')||(p=='Red Corps'))) {
-        return 'node default'
-      } 
-      return 'node ' + d.government })
+    .attr('id', function(d) { return d.name[0]})
+    .attr('class', function(d) {
+      var p = d.government;
+      return p in classes ? classes[p] : 'node default'
+    })
     .attr('r', 10)
     .style('stroke-width', '2')
     .on('mouseover', examine)
@@ -90,8 +97,10 @@ function Map() {
 
 Map();
 
-collection.attr('transform', 'scale(.65)')
-d3.select('#canvas').attr('height', 2500 * .65).attr('width', 2500*.65)
+var currentScale = .6 
+
+collection.attr('transform', 'scale(' + currentScale + ')')
+d3.select('#canvas').attr('height', 2500 * currentScale).attr('width', 2500*currentScale)
 
 function modeSwitch() {
   var button = d3.select(this),
@@ -101,8 +110,7 @@ function modeSwitch() {
     bMap = {'linktoggle' : ['linkOff', 'linkOn', 'nodeOff', '#nodetoggle'], 
       'nodetoggle' : ['nodeOff', 'nodeOn', 'linkOff', '#linktoggle']
     }
-  console.log(id)
-
+  
   button.property('checked', boolMap[checked])
     .text(function() { 
       return checked ? messages[bMap[id][0]] : messages[bMap[id][1]] 
@@ -146,6 +154,23 @@ function save_data() {
     if (err) { console.log(err)}
     console.log(json)
   })
+}
+
+function newButton(container, id, title) {
+  
+  function button() {
+    var b = container.append('div')
+      .attr('class', 'row')
+      .append('div')
+      .attr('class', 'large-12 columns')
+      .append('a')
+      .attr('id', id)
+      .attr('class', 'small button round expand')
+      .text(title)
+    
+    return b
+  }
+  return button();
 }
 
 var coordinates = {}
@@ -237,6 +262,40 @@ function add_link() {
   }
 }
 
+function nodeFields(container, type) {
+
+  var input = container.append('div')
+    .attr('class', 'row')
+    .append('form')
+    .append('fieldset')
+
+  var outer = input.append('input')
+    .attr('type', 'text')
+    .attr('id', type)
+    .attr('placeholder', function() { return 'Enter ' + type + ' name'})
+    .attr('value', '')
+
+  var politics = input.append('input')
+    .attr('type', 'text')
+    .attr('id', 'politics')
+    .attr('placeholder', 'Federation / Abolis / Red Corps / Other?')
+    .attr('value', '')
+
+  var content = input.append('textarea')
+    .attr('placeholder', 'Any other info (history, story, etc)')
+    .attr('id', 'content')
+    .attr('value', '')
+
+  function e() { }
+  
+  e.input = function() { return input }
+  e[type] = function() { return outer; }
+  e.politics = function() { return politics; }
+  e.content = function() { return content; }
+ 
+  return e;
+}
+
 function add_node() {
   d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
 
@@ -244,64 +303,66 @@ function add_node() {
     ox = d3.event.offsetX || d3.event.layerX,
     oy = d3.event.offsetY || d3.event.layerY
 
-  var coordinates = {'ox': ox, 'oy': oy}
+  var coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale}
 
-  var input = infoadd
-    .append('div')
-    .attr('class', 'row')
-    .append('form')
-    .append('fieldset')
+  var fields = nodeFields(infoadd, 'system'),
+    input = fields.input()
 
-  var system = input.append('input')
-    .attr('type', 'text')
-    .attr('id', 'system')
-    .attr('placeholder', 'Enter system / planet name')
-    .attr('value','') 
-    
-  var politics = input.append('input')
-    .attr('type', 'text')
-    .style('border', '1px solid #ffff')
-    .attr('id', 'politics')
-    .attr('placeholder', 'Federation / Abolis / Red Corps / Other?')
-    .attr('value', '')
-    
-  var content = input.append('textarea')
-    .attr('placeholder', 'Any other info ( history, story etc )')
-    .attr('id', 'content')
-    .attr('value', '')
-
-  content.on('change', function() {
+  function inputEvents(type) { 
+    fields.content().on('change', function() {
       coordinates['content'] = this.value
     })
 
-  system.on('change', function() { 
+    fields[type]().on('change', function() {
       coordinates['name'] = this.value
     })
 
-  politics.on('change', function() {
+    fields.politics().on('change', function() {
       coordinates['government'] = this.value
     })
+  }
+  
+  inputEvents('system');
 
-  input.append('div')
-    .attr('class', 'row')
-    .append('div')
-    .attr('class', '1arge-12 columns')
-    .append('a')
-    .attr('id', 'cancelbutton')
-    .attr('class', 'small button round expand')
-    .text('Withdraw Entry')
+  newButton(input, 'cancelbutton', 'Withdraw Entry')
+    .on('click', post_data)
+  newButton(input, 'submitbutton', 'Register Node')
     .on('click', post_data)
 
-  input.append('div')
-    .attr('class', 'row')
-    .append('div')
-    .attr('class', 'large-12 columns')
-    .append('a')
-    .attr('id', 'submitbutton')
-    .attr('class', 'small button round expand')
-    .text('Register Node')
-    .on('click', post_data)
+  function post_data() {
+    var p = coordinates.government,
+        c = coordinates.content,
+        s = coordinates.name,
+        e = d3.event.srcElement || d3.event.currentTarget,
+        id = d3.select(e).attr('id')
+
+    if (id == 'cancelbutton') {
+      newnode.remove();
+      input.remove();
+    }
+    else if (id == 'submitbutton') { 
+      if ((!p)|| (!c) || (!s)) {
+        
+        if (!text ) {
+          text = true
+          input.append('p').text(messages['entry-form'])
+        }
     
+      } else {
+        
+        newnode.attr('class', function() { 
+          return p in classes ? classes[p] : 'node default'
+        })
+
+        input.remove();
+        coordinates['index'] = nodes.length
+        nodes.push(coordinates); save_data();
+        Map();
+        linkcheck();
+      }
+    }
+  }
+
   var newnode = collection.append('g')
     .datum( coordinates )
     .attr('transform', function(d) {
@@ -313,47 +374,10 @@ function add_node() {
     .on('mouseover', examine)
     .on('mouseout', examine)
 
-  function post_data() {
-    var p = coordinates.government,
-        c = coordinates.content,
-        s = coordinates.name,
-        e = d3.event.srcElement || d3.event.currentTarget,
-        id = d3.select(e)[0][0].id
-
-    if (id == 'cancelbutton') {
-      newnode.remove();
-      input.remove();
-    }
-    else if (id == 'submitbutton') { 
-      if ((!p)|| (!c) || (!s)) {
-        
-        if ( text == false ) {
-          text = true
-          input.append('p').text(messages)
-        }
-      
-      } else {
-        
-        newnode.attr('class', function() { 
-          if (p=='Federation' || p == 'Abolis' || p == 'Red Corps' || p=='Other') {
-            return 'node ' + p
-          } else { return 'node default'}
-        })
-
-        input.remove();
-        coordinates['index'] = nodes.length
-        nodes.push(coordinates);
-        save_data();
-        Map();
-        linkcheck();
-      }
-    }
-  }
 }
 
-function PlanetBio(){
-  var current = d3.event.srcElement||d3.event.currentTarget,
-  data = d3.entries(current.__data__)
+function PlanetBio(src){
+  var data = d3.entries(src.__data__)
 
   for_examine.insert('div')
     .attr('class', 'row')
@@ -372,13 +396,13 @@ function PlanetBio(){
 }
 
 function examine() {
-
+  
   var current = d3.event.srcElement || d3.event.currentTarget,
-    data = d3.entries(current.__data__),
-    ds = current.__data__
+    ds = current.__data__,
+    type = d3.event.type
 
-  if (d3.event.type == 'mouseover') {
-        PlanetBio();
+  if (type == 'mouseover') {
+        PlanetBio(current);
         if (d3.select(current).attr('class')[0] == 'n') {
           var connections = d3.select('#info')
             .append('div')
@@ -415,20 +439,20 @@ function examine() {
           })
         }
   }
-  if (d3.event.type == 'mouseout') {
+  if (type == 'mouseout') {
     d3.select('#info').remove();
     if (d3.select(current).attr('class')[0] == 'n') {
       d3.selectAll('.link')
         .style('stroke', '#85ffff')
     }
   }
-  if (d3.event.type == 'click') {
+  if (type == 'click') {
     var r = d3.select('#info')
       .attr('id', 'placeholder')
       .style('border', '1px solid GhostWhite')
       .append('div')
       .attr('class', 'large-12 columns')
-      
+
     r.append('a')
       .attr('class', 'small button round expand')
       .text('remove from panel')
@@ -442,7 +466,9 @@ function examine() {
       .on('click', function() {
         d3.select(this.parentElement.parentElement).remove();
         var name = current.__data__.name,
-           index = current.__data__.index
+          index = current.__data__.index
+
+        console.log(name, index)
 
         if (d3.select(current).attr('class')[0] == 'n') {
 
