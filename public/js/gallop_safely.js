@@ -262,28 +262,30 @@ function add_link() {
   }
 }
 
-function nodeFields(container, type) {
-
-  var input = container.append('div')
-    .attr('class', 'row')
-    .append('form')
-    .append('fieldset')
+function nodeFields(container, type, method) {
+  var input = method == undefined
+    ? container.append('div')
+      .attr('class', 'row')
+      .append('form')
+      .append('fieldset')
+    
+    : container.insert('div', method)
+        .attr('class', 'row')
+        .append('form')
+        .append('fieldset')
 
   var outer = input.append('input')
     .attr('type', 'text')
-    .attr('id', type)
     .attr('placeholder', function() { return 'Enter ' + type + ' name'})
     .attr('value', '')
 
   var politics = input.append('input')
     .attr('type', 'text')
-    .attr('id', 'politics')
     .attr('placeholder', 'Federation / Abolis / Red Corps / Other?')
     .attr('value', '')
 
   var content = input.append('textarea')
     .attr('placeholder', 'Any other info (history, story, etc)')
-    .attr('id', 'content')
     .attr('value', '')
 
   function e() { }
@@ -292,7 +294,7 @@ function nodeFields(container, type) {
   e[type] = function() { return outer; }
   e.politics = function() { return politics; }
   e.content = function() { return content; }
- 
+  
   return e;
 }
 
@@ -301,38 +303,35 @@ function add_node() {
 
   var text = false,
     ox = d3.event.offsetX || d3.event.layerX,
-    oy = d3.event.offsetY || d3.event.layerY
-
-  var coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale}
-
-  var fields = nodeFields(infoadd, 'system'),
+    oy = d3.event.offsetY || d3.event.layerY,
+    coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale},
+    fields = nodeFields(infoadd, 'system'),
     input = fields.input()
 
-  function inputEvents(type) { 
-    fields.content().on('change', function() {
-      coordinates['content'] = this.value
-    })
+  fields.content().on('change', function() {
+    coordinates['content'] = this.value
+  })
 
-    fields[type]().on('change', function() {
-      coordinates['name'] = this.value
-    })
+  fields.system().on('change', function() {
+    coordinates['name'] = this.value
+  })
 
-    fields.politics().on('change', function() {
-      coordinates['government'] = this.value
-    })
-  }
-  
-  inputEvents('system');
+  fields.politics().on('change', function() {
+    coordinates['government'] = this.value
+  })
 
+  newButton(input, 'newplanet', 'Add Planet')
+    .on('click', post_data)
   newButton(input, 'cancelbutton', 'Withdraw Entry')
     .on('click', post_data)
   newButton(input, 'submitbutton', 'Register Node')
     .on('click', post_data)
 
   function post_data() {
-    var p = coordinates.government,
-        c = coordinates.content,
-        s = coordinates.name,
+    var c = coordinates,
+        p = c.government,
+        k = c.content,
+        s = c.name,
         e = d3.event.srcElement || d3.event.currentTarget,
         id = d3.select(e).attr('id')
 
@@ -340,23 +339,28 @@ function add_node() {
       newnode.remove();
       input.remove();
     }
+
+    else if (id == 'newplanet') {
+      var fields = nodeFields(input, 'planet', 'div.row')
+    }
+
     else if (id == 'submitbutton') { 
-      if ((!p)|| (!c) || (!s)) {
+      if ((!p)|| (!k) || (!s)) {
         
         if (!text ) {
           text = true
           input.append('p').text(messages['entry-form'])
         }
-    
-      } else {
-        
+      }
+      else {
+        console.log('it gets here.')
         newnode.attr('class', function() { 
           return p in classes ? classes[p] : 'node default'
         })
-
         input.remove();
         coordinates['index'] = nodes.length
-        nodes.push(coordinates); save_data();
+        nodes.push(c); 
+        save_data();
         Map();
         linkcheck();
       }
@@ -373,7 +377,6 @@ function add_node() {
     .style('stroke-width', '2')
     .on('mouseover', examine)
     .on('mouseout', examine)
-
 }
 
 function PlanetBio(src){
