@@ -8,7 +8,7 @@ var b = d3.select(window)[0][0],
   h = b.innerHeight
 
 var messages = {
-  'entry-form' : 'GTA policy dictates that all system registry fields be completed upon form submission.',
+  'entry-form' : 'GTA policy dictates that name registry field be completed upon form submission.',
   'nodeOff' : 'Adding nodes disabled',
   'nodeOn' : 'Adding nodes enabled',
   'linkOff': 'Adding links disabled',
@@ -263,6 +263,11 @@ function add_link() {
 }
 
 function nodeFields(container, type, method) {
+  var scope_map = {'node':'cluster, system?',
+    'habitat':'planet, moon, GTA station, other?',
+    'satellite':'planet, moon, GTA station, other?'
+    }
+  
   var input = method == undefined
     ? container.append('div')
       .attr('class', 'row')
@@ -274,10 +279,23 @@ function nodeFields(container, type, method) {
         .append('form')
         .append('fieldset')
 
+  var title = input.append('div')
+    .style('text-align', 'center')
+    .style('margin-bottom', '15px')
+    .append('b')
+    .text( type )
+
   var outer = input.append('input')
     .attr('type', 'text')
     .attr('placeholder', function() { return 'Enter ' + type + ' name'})
     .attr('value', '')
+
+  var scope = type in scope_map 
+     ? input.append('input')
+         .attr('type', 'text')
+         .attr('placeholder', function() { return 'type: ' + scope_map[type] })
+         .attr('value', '')
+     : null;
 
   var politics = input.append('input')
     .attr('type', 'text')
@@ -292,6 +310,7 @@ function nodeFields(container, type, method) {
   
   e.input = function() { return input }
   e[type] = function() { return outer; }
+  e.scope = function() { return scope;}
   e.politics = function() { return politics; }
   e.content = function() { return content; }
   
@@ -305,14 +324,14 @@ function add_node() {
     ox = d3.event.offsetX || d3.event.layerX,
     oy = d3.event.offsetY || d3.event.layerY,
     coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale},
-    fields = nodeFields(infoadd, 'system'),
+    fields = nodeFields(infoadd, 'node'),
     input = fields.input()
 
   fields.content().on('change', function() {
     coordinates['content'] = this.value
   })
 
-  fields.system().on('change', function() {
+  fields.node().on('change', function() {
     coordinates['name'] = this.value
   })
 
@@ -320,32 +339,162 @@ function add_node() {
     coordinates['government'] = this.value
   })
 
-  newButton(input, 'newplanet', 'Add Planet')
+  fields.scope().on('change', function() {
+    coordinates.type = this.value;
+    if (coordinates.type == 'system') {
+      coordinates.system = [{}]
+      coordinates.system.content = coordinates.content
+      coordinates.system.name = coordinates.name
+      coordinates.system.government = coordinates.government
+    }
+  })
+
+  newButton(input, 'newstructure', 'Add Substructure')
     .on('click', post_data)
   newButton(input, 'cancelbutton', 'Withdraw Entry')
     .on('click', post_data)
   newButton(input, 'submitbutton', 'Register Node')
     .on('click', post_data)
-
+  
   function post_data() {
     var c = coordinates,
         p = c.government,
         k = c.content,
         s = c.name,
         e = d3.event.srcElement || d3.event.currentTarget,
-        id = d3.select(e).attr('id')
+        id = d3.select(e).attr('id'),
+
+    function add_habitat(div, index) { 
+      var form = nodeFields(div, 'habitat', 'div.row'),
+        input = form.input(),
+        c = coordinates
+
+      if (!c.system[index].habitat ) { c.system[index].habitat = [{}]}
+      else { c.system[index].habitat.push({})}
+
+      var coord = c.system[index].habitat[ c.system[index].habitat.length - 1]
+      coord['index'] = c.system[index].habitat.length - 1;
+
+      form.habitat().on('change', function() {
+        coord['name'] = this.value;
+      })
+      form.politics().on('change', function() {
+        coord['government'] = this.value;
+      })
+      form.content().on('change', function() {
+        coord['content'] = this.value;
+      })
+      form.scope().on('change', function() {
+        coord['type'] = this.value;
+      })
+
+      newButton(input, coord.index, 'Withdraw habitat')
+        .on('click', function() {
+          c.system[index].habitat.splice(coord.index, 1);
+          c.system[index].habitat.map(function(d, i) { 
+            d.index = i;
+            return d
+          })
+          this.parentElement.parentElement.parentElement.remove();
+      });
+      newButton(input, null, 'Add satellite')
+        .on('click', function() {add_satellite(input, index, coord.index) })
+    }
+
+    function add_satellite(div, sindex, hindex) { 
+      var form = nodeFields(div, 'satellite', 'div.row'),
+        input = form.input(),
+        c = coordinates
+
+      if (!c.system[sindex].habitat[hindex].satellite) { 
+        c.system[sindex].habitat[hindex].satellite = [{}]
+      } else {
+        c.system[sindex].habitat[hindex].satellite.push({})
+      }
+
+      var coord = c.system[sindex].habitat[hindex].satellite[ c.system[sindex].habitat[hindex].satellite.length - 1];
+      coord.index = c.system[sindex].habitat[hindex].satellite.length - 1;
+
+      form.satellite().on('change', function() {
+        coord.name = this.value;
+      })
+      form.politics().on('change', function() {
+        coord.government = this.value;
+      })
+      form.content().on('change', function() {
+        coord.content = this.value;
+      })
+      form.scope().on('change', function() {
+        coord.type = this.value;
+      })
+
+      newButton(input, coord.index, 'Withdraw satellite')
+        .on('click', function() {
+          c.system[sindex].habitat[hindex].satellite.splice(coord.index, 1);
+          c.system[sindex].habitat[hindex].satellite.map(function(d, i) { 
+            d.index = i;
+            return d;
+          })
+          this.parentElement.parentElement.parentElement.remove();
+      });
+    }
+
+    function add_system(div) {
+      var form = nodeFields(div, 'system', 'div.row'),
+        input = form.input(),
+        c = coordinates
+
+      if (!c.system) { c.system = [{}] }
+      else {c.system.push({})}
+ 
+      var coord = c.system[ c.system.length - 1 ]
+      coord.index = c.system.length - 1;
+
+      form.system().on('change', function() { 
+        coord.name = this.value;
+      })
+      form.politics().on('change', function() {
+        coord.government = this.value;
+      })
+      form.content().on('change', function() {
+        coord.content = this.value;
+      })
+
+      newButton(input, null, 'Withdraw system')
+        .on('click', function() {
+          c.system.splice(coord.index, 1);
+          c.system.map(function(d, i) {
+            d.index = i;
+        })
+        this.parentElement.parentElement.parentElement.remove();
+      })
+      newButton(input, null, 'Add habitat')
+        .on('click', function() {
+          add_habitat(input, coord.index)
+      })
+    }
 
     if (id == 'cancelbutton') {
       newnode.remove();
       input.remove();
     }
 
-    else if (id == 'newplanet') {
-      var fields = nodeFields(input, 'planet', 'div.row')
+    else if (id == 'newstructure') {
+      if (!c['type']) { input.insert('p', 'div.row')
+        .text('This structure requires the "type" field');
+        return;
+      } else if (!(c.type == 'cluster' || c.type == 'system')) { input.insert('p', 'div.row')
+        .text('Valid type specifications are: "cluster" and "system"');
+        return;
+      }
+
+      if (c.type == 'cluster') { add_system(input)}
+      else if (c.type == 'system') { add_habitat(input, 0)}
     }
 
     else if (id == 'submitbutton') { 
-      if ((!p)|| (!k) || (!s)) {
+      // Presently, the node only needs to be named to be added.
+      if (!s) {
         
         if (!text ) {
           text = true
@@ -353,7 +502,6 @@ function add_node() {
         }
       }
       else {
-        console.log('it gets here.')
         newnode.attr('class', function() { 
           return p in classes ? classes[p] : 'node default'
         })
