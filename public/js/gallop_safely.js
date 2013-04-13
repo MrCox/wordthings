@@ -358,11 +358,9 @@ function add_node() {
   
   function post_data() {
     var c = coordinates,
-        p = c.government,
-        k = c.content,
         s = c.name,
         e = d3.event.srcElement || d3.event.currentTarget,
-        id = d3.select(e).attr('id'),
+        id = d3.select(e).attr('id')
 
     function add_habitat(div, index) { 
       var form = nodeFields(div, 'habitat', 'div.row'),
@@ -528,7 +526,8 @@ function add_node() {
 }
 
 function PlanetBio(src){
-  var data = d3.entries(src.__data__)
+  var fields = {'name':null, 'government':null, 'content':null, 'target':null, 'source':null, 'system':null, 'cluster':null, 'habitat':null},
+    data = d3.entries(src.__data__)
 
   for_examine.insert('div')
     .attr('class', 'row')
@@ -540,7 +539,7 @@ function PlanetBio(src){
     .enter().append('p')
     .style('color', 'GhostWhite')
     .html(function(d) { 
-      if (d.key == 'name' || d.key == 'government' || d.key == 'content' || d.key == 'target' || d.key == 'source' ) {
+      if (d.key in fields) {
         return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
       }
   })
