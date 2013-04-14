@@ -68,9 +68,18 @@ function Map() {
       return d.y2
     })
     .attr('class', 'link')
-    .on('click', examine)
-    .on('mouseover', examine)
-    .on('mouseout', examine)
+    .on('click', function(d, i) {
+      var s = this;
+      examine(d, i, s);
+    })
+    .on('mouseover', function(d, i) {
+      var s = this;
+      examine(d, i, s);
+    })
+    .on('mouseout', function(d,i) {
+      var s = this;
+      examine(d, i, s);
+    })
   
   linknodes.exit().remove();
   
@@ -82,15 +91,26 @@ function Map() {
       d['index'] = i
       return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
-    .attr('id', function(d) { return d.name[0]})
     .attr('class', function(d) {
       var p = d.government;
       return p in classes ? classes[p] : 'node default'
     })
+    .attr('id', function(d) { return d.name })
     .attr('r', 10)
     .style('stroke-width', '2')
-    .on('mouseover', examine)
-    .on('mouseout', examine)
+    .on('mouseover', function(d,i) { 
+      var s = this;
+      examine(d, i, s); 
+    })
+    .on('mouseout', function(d, i) {
+      var s = this;
+      examine(d, i, s);
+    })
+    .on('click', function(d, i) {
+      var s = this;
+      if (linktoggle.property('checked')) {add_link(d, i, s)}
+      else { examine(d, i, s); }
+    })
 
   mapnodes.exit().remove();
 }
@@ -134,17 +154,6 @@ collection.on('click', function() {
   if (checked && d3.select(e).attr('id') == 'milkyway') { add_node()}
 })
 
-function linkcheck() {
-  collection.selectAll('.node')
-    .on('click', function() {
-      var checked = d3.select('#linktoggle').property('checked')
-      if (checked) {add_link()}
-      else {examine()}
-    })
-}
-
-linkcheck();
-
 function save_data() {
   var ns = JSON.stringify(nodes),
     ls = JSON.stringify(links),
@@ -175,13 +184,11 @@ function newButton(container, id, title) {
 
 var coordinates = {}
 
-function add_link() {
-  
-  var e = d3.event.srcElement || d3.event.currentTarget,
-    d = e.__data__,
+function add_link(d, i, s) {
+  var e = s,
     ev = d3.event
 
-  if (coordinates.source == null) {
+  if (! coordinates.source ) {
     coordinates['source'] = d.name
     coordinates['x1'] = d.ox
     coordinates['y1'] = d.oy
@@ -197,7 +204,7 @@ function add_link() {
       .html(function() { 
         return "Source Node: <b>" + d.name + "</b>. Select destination node."
       })
-  } else if ( coordinates.source != null && coordinates.source != d.name ) { 
+  } else if ( coordinates.source != d.name ) { 
     coordinates['target'] = d.name
     coordinates['index'] = links.length
     coordinates['x2'] = d.ox
@@ -226,9 +233,18 @@ function add_link() {
       .attr('y2', function(d) {
           return d.y2
       })
-      .on('click', examine)
-      .on('mouseover', examine)
-      .on('mouseout', examine)
+      .on('click', function(d, i){
+        var s = this;
+        examine(d, i, s);
+      })
+      .on('mouseover', function(d, i) {
+        var s = this;
+        examine(d, i, s);
+      })
+      .on('mouseout', function(d, i) {
+        var s = this;
+        examine(d, i, s);
+      })
 
     d3.select('#current').append('div')
       .attr('class', 'large-12 columns')
@@ -241,7 +257,6 @@ function add_link() {
         links.push(lc)
         save_data();
         Map();
-        linkcheck();
       })
 
     d3.select('#current')
@@ -423,7 +438,7 @@ function add_system(c, div) {
       add_habitat(c, input, coord.index)
   })
 }
-//TODO: generalize post_data further and make Update function that uses it, and the add_data funcs.
+
 function post_data(input, c, newnode) {
   var s = c.name,
       p = c.government,
@@ -466,7 +481,6 @@ function post_data(input, c, newnode) {
       nodes.push(c); 
       save_data();
       Map();
-      linkcheck();
     }
   }
 }
@@ -518,41 +532,51 @@ function add_node() {
     .attr('class', 'node default')
     .attr('r', 10)
     .style('stroke-width', '2')
-    .on('mouseover', examine)
-    .on('mouseout', examine)
+    .on('mouseover', function(d, i) {
+      var s = this;
+      examine(d, i, s);
+    })
+    .on('mouseout', function(d, i) {
+      var s = this;
+      examine(d, i, s);
+    })
 }
 
 function PlanetBio(src){
-  var fields = {'name':null, 'government':null, 'content':null, 'target':null, 'source':null, 'system':null, 'cluster':null, 'habitat':null},
-    data = d3.entries(src.__data__)
+  var fields = {'name':null, 'government':null, 'content':null, 'target':null, 'source':null, 'system':null, 'cluster':null, 'habitat':null}
 
-  for_examine.insert('div')
-    .attr('class', 'row')
-    .attr('id', 'info')
-    .append('div')
-    .attr('class', 'large-12 columns')
-    .selectAll('.entries')
-    .data(data)
-    .enter().append('p')
-    .style('color', 'GhostWhite')
-    .html(function(d) { 
-      if (d.key in fields) {
-        return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
-      }
-  })
+  function bio() {
+    var info = for_examine.append('div')
+      .attr('class', 'row')
+      .attr('id', 'info')
+
+    info.append('div')
+      .attr('class', 'large-12 columns')
+      .selectAll('.entries')
+      .data(d3.entries(src))
+      .enter().append('p')
+      .style('color', 'GhostWhite')
+      .html(function(d) { 
+        if (d.key in fields) {
+          return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
+        }
+      })
+    return info;
+  }
+  return bio();
 }
 
-function examine() {
-  
-  var current = d3.event.srcElement || d3.event.currentTarget,
-    ds = current.__data__,
+function examine(d, i, s) {
+  console.log(s)
+
+  var current = d3.select(s),
+    ds = d,
     type = d3.event.type
 
   if (type == 'mouseover') {
-        PlanetBio(current);
-        if (d3.select(current).attr('class')[0] == 'n') {
-          var connections = d3.select('#info')
-            .append('div')
+        var bio = PlanetBio(ds);
+        if (current.attr('class')[0] == 'n') {
+          var connections = bio.append('div')
             .attr('class', 'row')
             .style('text-align', 'center')
             .html('<b>Connections</b>')
@@ -589,16 +613,21 @@ function examine() {
   }
   if (type == 'mouseout') {
     d3.select('#info').remove();
-    if (d3.select(current).attr('class')[0] == 'n') {
+    if (current.attr('class')[0] == 'n') {
       d3.selectAll('.link')
         .style('stroke', '#85ffff')
     }
   }
   if (type == 'click') {
+    console.log(arguments)
 
     var r = d3.select('#info')
       .attr('id', 'placeholder')
       .style('border', '1px solid GhostWhite')
+
+    newButton(r, null, 'Update node').on('click', function() {
+      console.log(d3.select('#placeholder'))
+    })
 
     newButton(r, null, 'remove from panel').on('click', function() { 
         d3.select('#placeholder').remove();
@@ -607,10 +636,10 @@ function examine() {
     newButton(r, null, 'remove from map')
       .on('click', function() { 
         d3.select('#placeholder').remove();
-        var name = current.__data__.name,
-          index = current.__data__.index
+        var name = ds.name,
+          index = i
 
-        if (d3.select(current).attr('class')[0] == 'n') {
+        if (current.attr('class')[0] == 'n') {
 
           var count = 0 
           d3.selectAll('.link').each( function(d, i) {
@@ -621,8 +650,8 @@ function examine() {
           })
           nodes.splice(index,1)
           
-        } else if (d3.select(current).attr('class')[0] == 'l') {
-            d3.select(current).remove(); 
+        } else if (current.attr('class')[0] == 'l') {
+            current.remove(); 
             links.splice( index, 1 );
         }
         d3.select(current).remove();
