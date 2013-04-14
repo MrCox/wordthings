@@ -423,53 +423,53 @@ function add_system(c, div) {
       add_habitat(c, input, coord.index)
   })
 }
+//TODO: generalize post_data further and make Update function that uses it, and the add_data funcs.
+function post_data(input, c, newnode) {
+  var s = c.name,
+      p = c.government,
+      e = d3.event.srcElement || d3.event.currentTarget,
+      id = d3.select(e).attr('id')
 
-  function post_data(input, c, newnode) {
-    var s = c.name,
-        p = c.government,
-        e = d3.event.srcElement || d3.event.currentTarget,
-        id = d3.select(e).attr('id')
+  if (id == 'cancelbutton') {
+    newnode.remove();
+    input.remove();
+  }
 
-    if (id == 'cancelbutton') {
-      newnode.remove();
-      input.remove();
+  else if (id == 'newstructure') {
+    if (!c['type']) { input.insert('p', 'div.row')
+      .text('This structure requires the "type" field');
+      return;
+    } else if (!(c.type == 'cluster' || c.type == 'system')) { input.insert('p', 'div.row')
+      .text('Valid type specifications are: "cluster" and "system"');
+      return;
     }
 
-    else if (id == 'newstructure') {
-      if (!c['type']) { input.insert('p', 'div.row')
-        .text('This structure requires the "type" field');
-        return;
-      } else if (!(c.type == 'cluster' || c.type == 'system')) { input.insert('p', 'div.row')
-        .text('Valid type specifications are: "cluster" and "system"');
-        return;
-      }
+    if (c.type == 'cluster') { add_system(c, input)}
+    else if (c.type == 'system') { add_habitat(c, input, 0)}
+  }
 
-      if (c.type == 'cluster') { add_system(c, input)}
-      else if (c.type == 'system') { add_habitat(c, input, 0)}
-    }
-
-    else if (id == 'submitbutton') { 
-      // Presently, the node only needs to be named to be added.
-      if (!s) {
+  else if (id == 'submitbutton') { 
+    // Presently, the node only needs to be named to be added.
+    if (!s) {
         
-        if (!text ) {
-          text = true
-          input.append('p').text(messages['entry-form'])
-        }
+      if (!text ) {
+        text = true
+        input.append('p').text(messages['entry-form'])
       }
-      else {
-        newnode.attr('class', function() { 
-          return p in classes ? classes[p] : 'node default'
-        })
-        input.remove();
-        coordinates['index'] = nodes.length
-        nodes.push(c); 
-        save_data();
-        Map();
-        linkcheck();
-      }
+    }
+    else {
+      newnode.attr('class', function() { 
+        return p in classes ? classes[p] : 'node default'
+      })
+      input.remove();
+      c['index'] = nodes.length
+      nodes.push(c); 
+      save_data();
+      Map();
+      linkcheck();
     }
   }
+}
 
 function add_node() {
   d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
