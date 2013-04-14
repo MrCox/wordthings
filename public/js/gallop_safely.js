@@ -583,7 +583,7 @@ function PlanetBio(src){
 
 function Update(d, i, s, div) {
   var coord = {},
-    input = base_node(div.append('div').attr('class', 'large-12 columns'), coord)
+    input = base_node(div.append('div'), coord)
   
   newButton(input, 'newstructure', 'Add Substructure')
     .on('click', function() { post_data(input, coord, null)})
@@ -676,24 +676,23 @@ function examine(d, i, s) {
     }
   }
   if (type == 'click') {
-    if (current.attr('class')[0] == 'n') {
-      var r = d3.select('#info')
-        .attr('id', 'placeholder')
-        .style('border', '1px solid GhostWhite')
+    var r = d3.select('#info')
+      .attr('id', 'placeholder')
+      .style('border', '1px solid GhostWhite')
+   
+    newButton(r, null, 'remove from panel').on('click', function() { 
+        d3.select('#placeholder').remove();
+      })
 
+    newButton(r, null, 'remove from map')
+      .on('click', function() { 
+        remove(ds, i, current);
+      })
+    if (current.attr('class')[0] == 'n') {
       newButton(r, null, 'Update node').on('click', function() {
         Update(ds, i, current, r );
         d3.select(this).remove();
       })
-
-      newButton(r, null, 'remove from panel').on('click', function() { 
-          d3.select('#placeholder').remove();
-        })
-
-      newButton(r, null, 'remove from map')
-        .on('click', function() { 
-          remove(ds, i, current);
-        })
     }
   }
 }
