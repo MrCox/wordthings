@@ -55,7 +55,6 @@ function Map() {
 
   linknodes.enter().insert('line', 'g')
     .attr('x1', function(d,i) {
-      d['index'] = i
       return d.x1
      })
     .attr('y1', function(d) {
@@ -88,7 +87,6 @@ function Map() {
 
   mapnodes.enter().append('g')
     .attr('transform', function(d, i) {
-      d['index'] = i
       return 'translate(' + d.ox + ',' + d.oy + ')'})
     .append('circle')
     .attr('class', function(d) {
@@ -206,7 +204,6 @@ function add_link(d, i, s) {
       })
   } else if ( coordinates.source != d.name ) { 
     coordinates['target'] = d.name
-    coordinates['index'] = links.length
     coordinates['x2'] = d.ox
     coordinates['y2'] = d.oy
 
@@ -477,7 +474,6 @@ function post_data(input, c, newnode) {
         return p in classes ? classes[p] : 'node default'
       })
       input.remove();
-      c['index'] = nodes.length
       nodes.push(c); 
       save_data();
       Map();
