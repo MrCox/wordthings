@@ -21,6 +21,15 @@ var classes = {
   'Other' : 'node Other',
   'Red Corps' : 'node Red Corps'
 }
+var validFields = {'name':null, 
+  'government':null, 
+  'content':null, 
+  'target':null, 
+  'source':null, 
+  'system':null, 
+  'cluster':null, 
+  'habitat':null
+}
 
 d3.select('#panel')
   .style('height', h + 'px')
@@ -50,8 +59,11 @@ var for_examine = d3.select('#for_examine')
 // Map-rendering function
 
 function Map() {
+  console.log(nodes)
   var linknodes = collection.selectAll('.link')
-    .data(links)
+    .data(links),
+    mapnodes = collection.selectAll('.node')
+    .data(nodes)
 
   linknodes.enter().insert('line', 'g')
     .attr('x1', function(d,i) {
@@ -81,9 +93,6 @@ function Map() {
     })
   
   linknodes.exit().remove();
-  
-  var mapnodes = collection.selectAll('.node')
-    .data(nodes)
 
   mapnodes.enter().append('g')
     .attr('transform', function(d, i) {
@@ -481,15 +490,9 @@ function post_data(input, c, newnode) {
   }
 }
 
-function add_node() {
-  d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
-
-  var text = false,
-    ox = d3.event.offsetX || d3.event.layerX,
-    oy = d3.event.offsetY || d3.event.layerY,
-    coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale},
-    fields = nodeFields(infoadd, 'node'),
-    input = fields.input()
+function base_node(div, coordinates) {
+  var fields = nodeFields(div, 'node'),
+    input = fields.input() 
 
   fields.content().on('change', function() {
     coordinates['content'] = this.value
@@ -513,13 +516,25 @@ function add_node() {
     }
   })
 
+  return input;
+}
+
+function add_node() {
+  d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
+
+  var text = false,
+    ox = d3.event.offsetX || d3.event.layerX,
+    oy = d3.event.offsetY || d3.event.layerY,
+    coordinates = {'ox': ox / currentScale, 'oy': oy / currentScale},
+    input = base_node(infoadd, coordinates);
+  
   newButton(input, 'newstructure', 'Add Substructure')
     .on('click', function() { post_data(input, coordinates, newnode)})
   newButton(input, 'cancelbutton', 'Withdraw Entry')
     .on('click', function() { post_data(input, coordinates, newnode)})
   newButton(input, 'submitbutton', 'Register Node')
     .on('click', function() {post_data(input, coordinates, newnode)})
-  
+    
   var newnode = collection.append('g')
     .datum( coordinates )
     .attr('transform', function(d) {
@@ -544,7 +559,6 @@ function add_node() {
 }
 
 function PlanetBio(src){
-  var fields = {'name':null, 'government':null, 'content':null, 'target':null, 'source':null, 'system':null, 'cluster':null, 'habitat':null}
 
   function bio() {
     var info = for_examine.append('div')
@@ -558,13 +572,34 @@ function PlanetBio(src){
       .enter().append('p')
       .style('color', 'GhostWhite')
       .html(function(d) { 
-        if (d.key in fields) {
+        if (d.key in validFields) {
           return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
         }
       })
     return info;
   }
   return bio();
+}
+
+function Update(d, i, s, div) {
+  var coord = {},
+    input = base_node(div, coord)
+
+  newButton(input, 'newstructure', 'Add Substructure')
+    .on('click', function() { post_data(input, coord, null)})
+
+  newButton(input, 'cancelbutton', 'Withdraw Entry')
+    .on('click', function() { input.remove();})
+
+  newButton(input, 'submitbutton', 'Confirm Update')
+    .on('click', function() { 
+      for (index in coord) { 
+        d[index] = coord[index];
+      }
+      div.remove();
+      save_data();
+      Map();
+  })
 }
 
 function examine(d, i, s) {
@@ -645,8 +680,9 @@ function examine(d, i, s) {
       .attr('id', 'placeholder')
       .style('border', '1px solid GhostWhite')
 
-    newButton(r, null, 'Update node').on('click', function(ds) {
-      console.log(ds)
+    newButton(r, null, 'Update node').on('click', function() {
+      Update(ds, i, current, r );
+      d3.select(this).remove();
     })
 
     newButton(r, null, 'remove from panel').on('click', function() { 
