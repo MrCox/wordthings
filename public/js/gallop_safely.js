@@ -317,6 +317,160 @@ function nodeFields(container, type, method) {
   return e;
 }
 
+
+function add_habitat(c, div, index) { 
+  var form = nodeFields(div, 'habitat', 'div.row'),
+    input = form.input()
+  if (!c.system[index].habitat ) { c.system[index].habitat = [{}]}
+  else { c.system[index].habitat.push({})}
+
+  var coord = c.system[index].habitat[ c.system[index].habitat.length - 1]
+  coord['index'] = c.system[index].habitat.length - 1;
+
+  form.habitat().on('change', function() {
+    coord['name'] = this.value;
+  })
+  form.politics().on('change', function() {
+    coord['government'] = this.value;
+  })
+  form.content().on('change', function() {
+    coord['content'] = this.value;
+  })
+  form.scope().on('change', function() {
+    coord['type'] = this.value;
+  })
+
+  newButton(input, coord.index, 'Withdraw habitat')
+    .on('click', function() {
+      c.system[index].habitat.splice(coord.index, 1);
+      c.system[index].habitat.map(function(d, i) { 
+        d.index = i;
+        return d
+      })
+      this.parentElement.parentElement.parentElement.remove();
+  });
+  newButton(input, null, 'Add satellite')
+    .on('click', function() {add_satellite(c, input, index, coord.index) })
+}
+
+function add_satellite(c, div, sindex, hindex) { 
+  var form = nodeFields(div, 'satellite', 'div.row'),
+    input = form.input()
+
+  if (!c.system[sindex].habitat[hindex].satellite) { 
+    c.system[sindex].habitat[hindex].satellite = [{}]
+  } else {
+    c.system[sindex].habitat[hindex].satellite.push({})
+  }
+
+  var coord = c.system[sindex].habitat[hindex].satellite[ c.system[sindex].habitat[hindex].satellite.length - 1];
+  coord.index = c.system[sindex].habitat[hindex].satellite.length - 1;
+
+  form.satellite().on('change', function() {
+    coord.name = this.value;
+  })
+  form.politics().on('change', function() {
+    coord.government = this.value;
+  })
+  form.content().on('change', function() {
+    coord.content = this.value;
+  })
+  form.scope().on('change', function() {
+    coord.type = this.value;
+  })
+
+  newButton(input, coord.index, 'Withdraw satellite')
+    .on('click', function() {
+      c.system[sindex].habitat[hindex].satellite.splice(coord.index, 1);
+      c.system[sindex].habitat[hindex].satellite.map(function(d, i) { 
+        d.index = i;
+        return d;
+      })
+      this.parentElement.parentElement.parentElement.remove();
+  });
+}
+
+function add_system(c, div) {
+  var form = nodeFields(div, 'system', 'div.row'),
+    input = form.input()
+
+  if (!c.system) { c.system = [{}] }
+  else {c.system.push({})}
+ 
+  var coord = c.system[ c.system.length - 1 ]
+  coord.index = c.system.length - 1;
+
+  form.system().on('change', function() { 
+    coord.name = this.value;
+  })
+  form.politics().on('change', function() {
+    coord.government = this.value;
+  })
+  form.content().on('change', function() {
+    coord.content = this.value;
+  })
+
+  newButton(input, null, 'Withdraw system')
+    .on('click', function() {
+      c.system.splice(coord.index, 1);
+      c.system.map(function(d, i) {
+        d.index = i;
+    })
+    this.parentElement.parentElement.parentElement.remove();
+  })
+  newButton(input, null, 'Add habitat')
+    .on('click', function() {
+      add_habitat(c, input, coord.index)
+  })
+}
+
+  function post_data(input, c, newnode) {
+    var s = c.name,
+        p = c.government,
+        e = d3.event.srcElement || d3.event.currentTarget,
+        id = d3.select(e).attr('id')
+
+    if (id == 'cancelbutton') {
+      newnode.remove();
+      input.remove();
+    }
+
+    else if (id == 'newstructure') {
+      if (!c['type']) { input.insert('p', 'div.row')
+        .text('This structure requires the "type" field');
+        return;
+      } else if (!(c.type == 'cluster' || c.type == 'system')) { input.insert('p', 'div.row')
+        .text('Valid type specifications are: "cluster" and "system"');
+        return;
+      }
+
+      if (c.type == 'cluster') { add_system(c, input)}
+      else if (c.type == 'system') { add_habitat(c, input, 0)}
+    }
+
+    else if (id == 'submitbutton') { 
+      // Presently, the node only needs to be named to be added.
+      if (!s) {
+        
+        if (!text ) {
+          text = true
+          input.append('p').text(messages['entry-form'])
+        }
+      }
+      else {
+        newnode.attr('class', function() { 
+          return p in classes ? classes[p] : 'node default'
+        })
+        input.remove();
+        coordinates['index'] = nodes.length
+        nodes.push(c); 
+        save_data();
+        Map();
+        linkcheck();
+      }
+    }
+  }
+
 function add_node() {
   d3.select('#nodetoggle').property('checked', false).text('Adding nodes disabled')
 
@@ -350,169 +504,12 @@ function add_node() {
   })
 
   newButton(input, 'newstructure', 'Add Substructure')
-    .on('click', post_data)
+    .on('click', function() { post_data(input, coordinates, newnode)})
   newButton(input, 'cancelbutton', 'Withdraw Entry')
-    .on('click', post_data)
+    .on('click', function() { post_data(input, coordinates, newnode)})
   newButton(input, 'submitbutton', 'Register Node')
-    .on('click', post_data)
+    .on('click', function() {post_data(input, coordinates, newnode)})
   
-  function post_data() {
-    var c = coordinates,
-        s = c.name,
-        e = d3.event.srcElement || d3.event.currentTarget,
-        id = d3.select(e).attr('id')
-
-    function add_habitat(div, index) { 
-      var form = nodeFields(div, 'habitat', 'div.row'),
-        input = form.input(),
-        c = coordinates
-
-      if (!c.system[index].habitat ) { c.system[index].habitat = [{}]}
-      else { c.system[index].habitat.push({})}
-
-      var coord = c.system[index].habitat[ c.system[index].habitat.length - 1]
-      coord['index'] = c.system[index].habitat.length - 1;
-
-      form.habitat().on('change', function() {
-        coord['name'] = this.value;
-      })
-      form.politics().on('change', function() {
-        coord['government'] = this.value;
-      })
-      form.content().on('change', function() {
-        coord['content'] = this.value;
-      })
-      form.scope().on('change', function() {
-        coord['type'] = this.value;
-      })
-
-      newButton(input, coord.index, 'Withdraw habitat')
-        .on('click', function() {
-          c.system[index].habitat.splice(coord.index, 1);
-          c.system[index].habitat.map(function(d, i) { 
-            d.index = i;
-            return d
-          })
-          this.parentElement.parentElement.parentElement.remove();
-      });
-      newButton(input, null, 'Add satellite')
-        .on('click', function() {add_satellite(input, index, coord.index) })
-    }
-
-    function add_satellite(div, sindex, hindex) { 
-      var form = nodeFields(div, 'satellite', 'div.row'),
-        input = form.input(),
-        c = coordinates
-
-      if (!c.system[sindex].habitat[hindex].satellite) { 
-        c.system[sindex].habitat[hindex].satellite = [{}]
-      } else {
-        c.system[sindex].habitat[hindex].satellite.push({})
-      }
-
-      var coord = c.system[sindex].habitat[hindex].satellite[ c.system[sindex].habitat[hindex].satellite.length - 1];
-      coord.index = c.system[sindex].habitat[hindex].satellite.length - 1;
-
-      form.satellite().on('change', function() {
-        coord.name = this.value;
-      })
-      form.politics().on('change', function() {
-        coord.government = this.value;
-      })
-      form.content().on('change', function() {
-        coord.content = this.value;
-      })
-      form.scope().on('change', function() {
-        coord.type = this.value;
-      })
-
-      newButton(input, coord.index, 'Withdraw satellite')
-        .on('click', function() {
-          c.system[sindex].habitat[hindex].satellite.splice(coord.index, 1);
-          c.system[sindex].habitat[hindex].satellite.map(function(d, i) { 
-            d.index = i;
-            return d;
-          })
-          this.parentElement.parentElement.parentElement.remove();
-      });
-    }
-
-    function add_system(div) {
-      var form = nodeFields(div, 'system', 'div.row'),
-        input = form.input(),
-        c = coordinates
-
-      if (!c.system) { c.system = [{}] }
-      else {c.system.push({})}
- 
-      var coord = c.system[ c.system.length - 1 ]
-      coord.index = c.system.length - 1;
-
-      form.system().on('change', function() { 
-        coord.name = this.value;
-      })
-      form.politics().on('change', function() {
-        coord.government = this.value;
-      })
-      form.content().on('change', function() {
-        coord.content = this.value;
-      })
-
-      newButton(input, null, 'Withdraw system')
-        .on('click', function() {
-          c.system.splice(coord.index, 1);
-          c.system.map(function(d, i) {
-            d.index = i;
-        })
-        this.parentElement.parentElement.parentElement.remove();
-      })
-      newButton(input, null, 'Add habitat')
-        .on('click', function() {
-          add_habitat(input, coord.index)
-      })
-    }
-
-    if (id == 'cancelbutton') {
-      newnode.remove();
-      input.remove();
-    }
-
-    else if (id == 'newstructure') {
-      if (!c['type']) { input.insert('p', 'div.row')
-        .text('This structure requires the "type" field');
-        return;
-      } else if (!(c.type == 'cluster' || c.type == 'system')) { input.insert('p', 'div.row')
-        .text('Valid type specifications are: "cluster" and "system"');
-        return;
-      }
-
-      if (c.type == 'cluster') { add_system(input)}
-      else if (c.type == 'system') { add_habitat(input, 0)}
-    }
-
-    else if (id == 'submitbutton') { 
-      // Presently, the node only needs to be named to be added.
-      if (!s) {
-        
-        if (!text ) {
-          text = true
-          input.append('p').text(messages['entry-form'])
-        }
-      }
-      else {
-        newnode.attr('class', function() { 
-          return p in classes ? classes[p] : 'node default'
-        })
-        input.remove();
-        coordinates['index'] = nodes.length
-        nodes.push(c); 
-        save_data();
-        Map();
-        linkcheck();
-      }
-    }
-  }
-
   var newnode = collection.append('g')
     .datum( coordinates )
     .attr('transform', function(d) {
@@ -560,7 +557,7 @@ function examine() {
             .style('text-align', 'center')
             .html('<b>Connections</b>')
             
-          d3.selectAll('.link').each( function(d) {
+          d3.selectAll('.link').each( function(d,i) {
             if (d.source == ds.name || d.target == ds.name) {
               d3.select(this).style('stroke', '#e60000')
               if (d.source == ds.name) {
@@ -585,8 +582,9 @@ function examine() {
                     }
                   })
                 }
-             }
+              }
           })
+          if (!connections.select('p')[0][0]) { connections.remove(); }
         }
   }
   if (type == 'mouseout') {
@@ -597,28 +595,20 @@ function examine() {
     }
   }
   if (type == 'click') {
+
     var r = d3.select('#info')
       .attr('id', 'placeholder')
       .style('border', '1px solid GhostWhite')
-      .append('div')
-      .attr('class', 'large-12 columns')
 
-    r.append('a')
-      .attr('class', 'small button round expand')
-      .text('remove from panel')
-      .on('click', function() { 
-        d3.select(this.parentElement.parentElement).remove();
+    newButton(r, null, 'remove from panel').on('click', function() { 
+        d3.select('#placeholder').remove();
       })
 
-    r.append('a')
-      .attr('class', 'small button round expand')
-      .text('remove from map')
-      .on('click', function() {
-        d3.select(this.parentElement.parentElement).remove();
+    newButton(r, null, 'remove from map')
+      .on('click', function() { 
+        d3.select('#placeholder').remove();
         var name = current.__data__.name,
           index = current.__data__.index
-
-        console.log(name, index)
 
         if (d3.select(current).attr('class')[0] == 'n') {
 
