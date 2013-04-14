@@ -536,6 +536,11 @@ function add_node() {
       var s = this;
       examine(d, i, s);
     })
+    .on('click', function(d) {
+      var s = this,
+      i = d3.selectAll('.node')[0].indexOf(s)
+      examine(d, i, s);
+    })
 }
 
 function PlanetBio(src){
@@ -563,11 +568,32 @@ function PlanetBio(src){
 }
 
 function examine(d, i, s) {
-  console.log(s)
-
   var current = d3.select(s),
     ds = d,
     type = d3.event.type
+
+  function remove(d, i, s) {
+    d3.select('#placeholder').remove();
+    var name = d.name
+
+    if (s.attr('class')[0] == 'n') {
+      var count = 0
+      d3.selectAll('.link').each( function(d, i) {
+        if (d.source == name || d.target == name) {
+          links.splice( i - count, 1 );
+          count += 1
+        }
+      })
+      nodes.splice(i, 1)
+    }
+    else if (s.attr('class')[0] == 'l') {
+      s.remove();
+      links.splice(i, 1);
+    }
+    s.remove();
+    save_data();
+    Map();
+  }
 
   if (type == 'mouseover') {
         var bio = PlanetBio(ds);
@@ -615,14 +641,12 @@ function examine(d, i, s) {
     }
   }
   if (type == 'click') {
-    console.log(arguments)
-
     var r = d3.select('#info')
       .attr('id', 'placeholder')
       .style('border', '1px solid GhostWhite')
 
-    newButton(r, null, 'Update node').on('click', function() {
-      console.log(d3.select('#placeholder'))
+    newButton(r, null, 'Update node').on('click', function(ds) {
+      console.log(ds)
     })
 
     newButton(r, null, 'remove from panel').on('click', function() { 
@@ -631,28 +655,7 @@ function examine(d, i, s) {
 
     newButton(r, null, 'remove from map')
       .on('click', function() { 
-        d3.select('#placeholder').remove();
-        var name = ds.name,
-          index = i
-
-        if (current.attr('class')[0] == 'n') {
-
-          var count = 0 
-          d3.selectAll('.link').each( function(d, i) {
-            if (d.source == name || d.target == name) {
-              links.splice( i - count, 1);
-              count += 1
-            }
-          })
-          nodes.splice(index,1)
-          
-        } else if (current.attr('class')[0] == 'l') {
-            current.remove(); 
-            links.splice( index, 1 );
-        }
-        d3.select(current).remove();
-        save_data()
-        Map()
+        remove(ds, i, current);
       })
   }
 }
