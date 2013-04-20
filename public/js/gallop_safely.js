@@ -434,10 +434,6 @@ function add_system(c, div) {
     coord.content = this.value;
   })
 
-  form.scope().on('change', function() {
-    coord.content = this.value;
-  }
-
   newButton(input, null, 'Withdraw system')
     .on('click', function() {
       c.system.splice(coord.index, 1);
@@ -597,6 +593,8 @@ function PlanetBio(src){
     .attr('id', 'info')
     .style('box-shadow', '1px -1px 3px Ghostwhite')
     .datum(src)
+
+  //TODO: find a way to do this recursively and solve the extra-div problem and the no-highlighting problem at the same time.
     
   var fs = info.call(fields)
     .selectAll('.sub')
