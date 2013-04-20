@@ -434,7 +434,9 @@ function add_system(c, div) {
     coord.content = this.value;
   })
 
-  coord.type = 'system'
+  form.scope().on('change', function() {
+    coord.content = this.value;
+  }
 
   newButton(input, null, 'Withdraw system')
     .on('click', function() {
