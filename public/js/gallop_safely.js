@@ -36,14 +36,17 @@ d3.select('#panel')
 
 // defining variables for selections
 
-var panel = d3.select('#innerpanel'),
+var panel = d3.select('#innerpanel')
+  .style('box-shadow', '1px -1px 3px Ghostwhite'),
   pwidth = panel[0][0].clientWidth
 
 var nodetoggle = d3.select('#nodetoggle')
+  .style('box-shadow', '1px -1px 3px Ghostwhite')
   .property('checked', false)
   .text(messages.nodeOff)
 
 var linktoggle = d3.select('#linktoggle')
+  .style('box-shadow', '1px -1px 3px Ghostwhite')
   .property('checked', false)
   .text(messages.linkOff)
 
@@ -59,7 +62,6 @@ var for_examine = d3.select('#for_examine')
 // Map-rendering function
 
 function Map() {
-  console.log(nodes)
   var linknodes = collection.selectAll('.link')
     .data(links),
     mapnodes = collection.selectAll('.node')
@@ -182,6 +184,7 @@ function newButton(container, id, title) {
       .append('a')
       .attr('id', id)
       .attr('class', 'small button round expand')
+      .style('box-shadow', '1px -1px 3px Ghostwhite')
       .text(title)
     
     return b
@@ -559,26 +562,65 @@ function add_node() {
 }
 
 function PlanetBio(src){
-
-  function bio() {
-    var info = for_examine.append('div')
-      .attr('class', 'row')
-      .attr('id', 'info')
-
-    info.append('div')
-      .attr('class', 'large-12 columns')
-      .selectAll('.entries')
-      .data(d3.entries(src))
-      .enter().append('p')
-      .style('color', 'GhostWhite')
+  var validFields = { 'name':null, 'government':null, 'content':null}
+  
+  function fields(div) {
+    var info = div.style('text-align', 'center')
+      .style('border', '1px solid Ghostwhite')
+      .style('box-shadow', '1px -1px 3px Ghostwhite')
+       
+    var type = div.datum().type ? info.append('div')
+      .append('h5')
+      .style('color', 'Gray')
+      .text(function(d) { 
+        return '____' + d.type + '____';
+      })
+      : null;
+  
+    info.selectAll('.entries')
+      .data(function(d) { return d3.entries(d)})
+      .enter()
+      .append('p')
       .html(function(d) { 
         if (d.key in validFields) {
-          return '<div class="row" style="text-align:center;"><b>' + d.key + '</b></div>' + '<div class = "row" style="text-align:center;"><div class="large-12 columns" style = "text-align:center;"><p class="entry">' + d.value + '</p></div></div>'
+          return '<div style="text-align:center;"><b>' + d.key + '</b></div><div style = "text-align:center;"><p class="entry">' + d.value + '</p></div>'
         }
       })
     return info;
   }
-  return bio();
+  var info = for_examine.append('div')
+    .attr('class', 'large-12 columns')
+    .attr('id', 'info')
+    .style('box-shadow', '1px -1px 3px Ghostwhite')
+    .datum(src)
+    
+  var fs = info.call(fields)
+    .selectAll('.sub')
+    .data(function(d) { return d.system })
+    .enter().append('div')
+    .attr('class','large-12 columns')
+    .style('box-shadow', '1px -1px 3px Ghostwhite')
+  .call(fields)
+    .selectAll('.subsub')
+    .data(function(d) { return d.system || d.habitat})
+    .enter().append('div')
+    .attr('class', 'large-12 columns')
+    .style('box-shadow', '1px -1px 3px Ghostwhite')
+  .call(fields)
+    .selectAll('.subsubsub')
+    .data(function(d) { return d.habitat || d.satellite })
+    .enter().append('div')
+    .attr('class','large-12 columns')
+    .style('box-shadow', '1px -1px 3px Ghostwhite')
+  .call(fields)
+    .selectAll('.subsubsubsub')
+    .data(function(d) { if (d.satellite) { return d.satellite};}) 
+    .enter().append('div')
+    .attr('class', 'large-12 columns')
+    .style('box-shadow', '1px -1px 3px Ghostwhite')
+  .call(fields)
+  
+  return info;
 }
 
 function Update(d, i, s, div) {
@@ -678,7 +720,6 @@ function examine(d, i, s) {
   if (type == 'click') {
     var r = d3.select('#info')
       .attr('id', 'placeholder')
-      .style('border', '1px solid GhostWhite')
    
     newButton(r, null, 'remove from panel').on('click', function() { 
         d3.select('#placeholder').remove();
