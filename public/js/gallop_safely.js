@@ -434,6 +434,8 @@ function add_system(c, div) {
     coord.content = this.value;
   })
 
+  coord.type = 'system'
+
   newButton(input, null, 'Withdraw system')
     .on('click', function() {
       c.system.splice(coord.index, 1);
@@ -560,14 +562,23 @@ function add_node() {
       examine(d, i, s);
     })
 }
+function PlanetBio(src, l){
+  if (l) {
+    var info = for_examine.append('div')
+      .attr('class', 'large-12 columns')
+      .attr('id', 'info')
+    
+    return info;
+  }
 
-function PlanetBio(src){
   var validFields = { 'name':null, 'government':null, 'content':null}
   
   function fields(div) {
     var info = div.style('text-align', 'center')
       .style('border', '1px solid Ghostwhite')
       .style('box-shadow', '1px -1px 3px Ghostwhite')
+      .style('margin-top', '10px')
+      .style('margin-bottom', '10px')
        
     var type = div.datum().type ? info.append('div')
       .append('h5')
@@ -591,37 +602,35 @@ function PlanetBio(src){
   var info = for_examine.append('div')
     .attr('class', 'large-12 columns')
     .attr('id', 'info')
-    .style('box-shadow', '1px -1px 3px Ghostwhite')
     .datum(src)
+    .call(fields)
 
-  //TODO: find a way to do this recursively and solve the extra-div problem and the no-highlighting problem at the same time.
+  var f1 = info.datum().system[0].name 
+         ? info.selectAll('.sub')
+             .data(function(d) { return d.system })
+             .enter().append('div')
+             .attr('class','large-12 columns')
+             .style('box-shadow', '1px -1px 3px Ghostwhite')
+             .call(fields)
+         : info.datum(function(d){return d.system[0]})
+
+  var f2 = f1.datum().habitat 
+         ? f1.selectAll('.subsub')
+             .data(function(d) { return d.habitat})
+             .enter().append('div')
+             .attr('class', 'large-12 columns')
+             .style('box-shadow', '1px -1px 3px Ghostwhite')
+           .call(fields)
+         : new function() {this.datum = function() {return {'satellite':null}}};
     
-  var fs = info.call(fields)
-    .selectAll('.sub')
-    .data(function(d) { return d.system })
-    .enter().append('div')
-    .attr('class','large-12 columns')
-    .style('box-shadow', '1px -1px 3px Ghostwhite')
-  .call(fields)
-    .selectAll('.subsub')
-    .data(function(d) { return d.system || d.habitat})
-    .enter().append('div')
-    .attr('class', 'large-12 columns')
-    .style('box-shadow', '1px -1px 3px Ghostwhite')
-  .call(fields)
-    .selectAll('.subsubsub')
-    .data(function(d) { return d.habitat || d.satellite })
-    .enter().append('div')
-    .attr('class','large-12 columns')
-    .style('box-shadow', '1px -1px 3px Ghostwhite')
-  .call(fields)
-    .selectAll('.subsubsubsub')
-    .data(function(d) { if (d.satellite) { return d.satellite};}) 
-    .enter().append('div')
-    .attr('class', 'large-12 columns')
-    .style('box-shadow', '1px -1px 3px Ghostwhite')
-  .call(fields)
-  
+  if ( f2.datum().satellite ) { 
+    f2.selectAll('.subsubsub')
+      .data(function(d) { return d.satellite })
+      .enter().append('div')
+      .attr('class','large-12 columns')
+      .style('box-shadow', '1px -1px 3px Ghostwhite')
+      .call(fields)
+  } 
   return info;
 }
 
@@ -675,42 +684,35 @@ function examine(d, i, s) {
   }
 
   if (type == 'mouseover') {
-        var bio = PlanetBio(ds);
-        if (current.attr('class')[0] == 'n') {
-          var connections = bio.append('div')
-            .attr('class', 'row')
-            .style('text-align', 'center')
-            .html('<b>Connections</b>')
+    if (current.attr('class')[0] == 'n') {
+      var bio = PlanetBio(ds),
+        connections = bio.append('div')
+          .attr('class', 'large-12 columns')
+          .attr('style', 'text-align: center; margin-top: 15px;')
+          .html('<b>___Connections___</b>')
             
-          d3.selectAll('.link').each( function(d,i) {
-            if (d.source == ds.name || d.target == ds.name) {
-              d3.select(this).style('stroke', '#e60000')
-              if (d.source == ds.name) {
-                d3.selectAll('.node')
-                  .each(function(da) {
-                   if (da.name == d.target) {
-                     connections.append('div')
-                       .attr('class', 'row')
-                       .style('text-align', 'center')
-                       .html('<p class = "entry">' + da.name + '</p>')
-                   }
-                  })
-              }
-              else if (d.target == ds.name) {
-                d3.selectAll('.node')
-                  .each(function(da) {
-                    if (da.name == d.source) {
-                      connections.append('div')
-                        .attr('class', 'row')
-                        .style('text-align', 'center')
-                        .html('<p class = "entry">' + da.name + '</p>')
-                    }
-                  })
-                }
-              }
-          })
-          if (!connections.select('p')[0][0]) { connections.remove(); }
-        }
+      d3.selectAll('.link').each( function(d,i) {
+        var v;
+        if (d.source == ds.name || d.target == ds.name) {
+          d3.select(this).style('stroke', '#e60000')
+          if (d.source == ds.name) { v = d.target;}
+          else if (d.target == ds.name) { v = d.source; }
+          d3.selectAll('.node').each(function(da) {
+             if (da.name == v) {
+               connections.append('div')
+                 .style('margin-top', '10px')
+                 .style('margin-bottom', '10px')
+                 .style('text-align', 'center')
+                 .html('<p class = "entry">' + da.name + '</p>')
+             };
+          });
+        };
+      });
+      if (!connections.select('p')[0][0]) { connections.remove(); }
+    }
+    else if (current.attr('class')[0] == 'l') {
+      PlanetBio(ds, 'link');
+    }
   }
   if (type == 'mouseout') {
     d3.select('#info').remove();
@@ -722,16 +724,16 @@ function examine(d, i, s) {
   if (type == 'click') {
     var r = d3.select('#info')
       .attr('id', 'placeholder')
-   
-    newButton(r, null, 'remove from panel').on('click', function() { 
-        d3.select('#placeholder').remove();
-      })
 
     newButton(r, null, 'remove from map')
       .on('click', function() { 
         remove(ds, i, current);
-      })
+    })
+
     if (current.attr('class')[0] == 'n') {
+      newButton(r, null, 'remove from panel').on('click', function() { 
+        d3.select('#placeholder').remove();
+      })
       newButton(r, null, 'Update node').on('click', function() {
         Update(ds, i, current, r );
         d3.select(this).remove();
