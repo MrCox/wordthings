@@ -434,6 +434,8 @@ function add_system(c, div) {
     coord.content = this.value;
   })
 
+  coord.type = 'system'
+
   newButton(input, null, 'Withdraw system')
     .on('click', function() {
       c.system.splice(coord.index, 1);
