@@ -21,16 +21,9 @@ app.get('/gallop_safely', function(req, res) {
   })
 })
 
-//var j = 0
-//app.get('/', function(req, res) {
-//    res.render('layout.jade', {pageTitle: 'wordthings' })
-//  j += 1
-//  console.log( j )
-//})
-//app.get('/words', function(req, res) {
-//  var w = wordgen(req.query.lets)
-//  res.json(w)
-//})
+app.get('/', function(req, res) {
+    res.render('layout.jade', {pageTitle: 'wordthings' })
+})
 
 app.get('/mapauth', function(req, res) {
   if (req.query.password == "The eyes are on the roofs and in the alleys.") {
