@@ -1,33 +1,46 @@
 var input = d3.select('#solver')
   .style('border', '1px solid LightBlue')
 
-var graph = d3.select('#graph').style('display', 'inline-block')
+var graph = d3.select('#graph').style('text-align', 'center')
 
-var width;
-input.on('change', function() {
-  var w = d3.entries(wordgen(this.value)),
-    l = w.length;
-  width = (1 / l) * 100;
-  words( w );
+var width,
+  sum = 0;
+input.on('keyup', function() {
+  var v = '/words?rack=' + this.value
+  d3.json(v, function(e, j) {
+    if (e) console.log(e);
+    var w = d3.entries(j)
+    width = w.map(function(d) { 
+        var m = d3.max(d.value, function(d) { return d.length; })
+        sum += m;
+        return m;
+      }) 
+    words(w)
+  })
 })
 
 function words(set) {
-  var cols = graph.selectAll('.columns')
+  console.log(set)
+  graph.selectAll('.cols').remove();
+
+  var cols = graph.selectAll('.cols')
     .data(set)
 
-  var rows = cols.enter()
+  cols.enter()
     .append('div')
-    .style('display', 'inline-block')
-    .attr('class', 'columns')
+    .attr('class', 'cols')
     .style('float', 'left')
-    .style('width', function(d) { console.log(width); return width + '%'})
-    .selectAll('.words')
+    //.style('margin-left', function(d) { return d.key * 2 + 'px'})
+    //.style('margin-right', function(d) { return d.key * 2 + 'px'})
+    .style('width', function(d, i) { return width[i] * 100 / sum + '%'; })
+    .append('div').attr('style', 'margin-bottom: 10px; text-align: center;')
+    .append('p').text(function(d) { return Number(d.key) - 3})
+    
+  var rows = cols.selectAll('.words')
     .data(function(d) {return d.value})
-
-  cols.exit().remove();
-
+  
   var words = rows.enter().append('p')
     .text(function(d) { return d.slice(0, d.length - 5)})
-
-  rows.exit().remove();
+  
+  sum = 0;
 }

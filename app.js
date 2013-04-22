@@ -2,6 +2,8 @@ var express = require('express'),
   app = express(),
   http = require('http'),
   fs = require('fs'),
+  dict = require('./words'),
+  cross = require('crossfilter'),
   wordgen = require('./wordgen')
 
 app.configure( function() {
@@ -23,6 +25,17 @@ app.get('/gallop_safely', function(req, res) {
 
 app.get('/', function(req, res) {
     res.render('layout.jade', {pageTitle: 'wordthings' })
+})
+
+var d = cross(dict).groupAll(),
+k = 0;
+app.get('/words', function(req, res) {
+  var w = wordgen(d, String(req.query.rack));
+  res.json(w);
+  k += 1;
+  fs.appendFile('./anacount.js', ', ' + k, function(e) {
+    if (e) throw e;
+  })
 })
 
 app.get('/mapauth', function(req, res) {

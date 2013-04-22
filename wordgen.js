@@ -1,16 +1,10 @@
-var words = require('./words'),
-  crossfilter = require('crossfilter'),
-  dict = crossfilter(words).groupAll();
-
-function wordgen(rack) {
-  var l = rack.length
-  var ind = indext[ l + 1]
-  j = 0;
-  var ra = rack.split('')
-  for ( var i = 0; i<l; i++ ) { if ( ra[i] == '*' ) {j++} };
+function wordgen(dict, rack) {
+  var l = rack.length,
+    j = 0;
+  for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
 
   function reduceAdd(p, v) {
-    var r = rack.split(''), w = v.split('')
+    var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
     k = 0;
     while (w.length > 0) {
       if ( r.indexOf(w[0]) != -1 ) {
@@ -38,4 +32,5 @@ function wordgen(rack) {
   }
   return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
 }
+
 module.exports = wordgen;
