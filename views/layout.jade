@@ -7,9 +7,8 @@ html
     link( rel = 'stylesheet', href = '/public/css/style.css')
     link( rel = 'stylesheet', href = '/public/css/foundation.css')
   body
-    div.row
-      div.large-3.columns.left
-      div.large-6.columns.center(style='margin-top:10%;')
+    div.row(style='text-align: center;') 
+      div.large-8.columns(style='margin-top:10%;')
         input#solver(type='text', placeholder='put anagram here' )
-      div#graph.large-12.columns(style='overflow:auto;')
-        script(src = '/public/js/w.js')
+        div#graph.large-12.columns(style='overflow:auto;')
+          script(src = '/public/js/w.js')
