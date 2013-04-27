@@ -30,7 +30,7 @@ app.get('/', function(req, res) {
 var d = cross(dict).groupAll(),
 k = 0;
 app.get('/words', function(req, res) {
-  var w = wordgen(d, String(req.query.rack));
+  var w = wordgen(d, String(req.query.rack).toLowerCase());
   res.json(w);
   k += 1;
   fs.appendFile('./anacount.js', ', ' + k, function(e) {
