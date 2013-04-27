@@ -4,6 +4,7 @@ function wordgen(dict, rack) {
   for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
 
   function reduceAdd(p, v) {
+    if (l < v.length - 5) { return p; }
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
     k = 0;
     while (w.length > 0) {

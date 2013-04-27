@@ -7,7 +7,7 @@ var express = require('express'),
   wordgen = require('./wordgen')
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -29,9 +29,10 @@ app.get('/', function(req, res) {
 
 var d = cross(dict).groupAll(),
 k = 0;
+
 app.get('/words', function(req, res) {
-  var w = wordgen(d, String(req.query.rack).toLowerCase());
-  res.json(w);
+  res.json(wordgen(d, String(req.query.rack).toLowerCase()));
+  d.filterAll();
   k += 1;
   fs.appendFile('./anacount.js', ', ' + k, function(e) {
     if (e) throw e;
