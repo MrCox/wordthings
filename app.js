@@ -32,7 +32,6 @@ k = 0;
 
 app.get('/words', function(req, res) {
   res.json(wordgen(d, String(req.query.rack).toLowerCase()));
-  d.filterAll();
   k += 1;
   fs.appendFile('./anacount.js', ', ' + k, function(e) {
     if (e) throw e;
