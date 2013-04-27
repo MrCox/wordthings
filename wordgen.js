@@ -5,7 +5,6 @@ function wordgen(dict, rack) {
 
   function reduceAdd(p, v) {
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
-    //if (w.length > l) {return p}
     k = 0;
     while (w.length > 0) {
       if ( r.indexOf(w[0]) != -1 ) {

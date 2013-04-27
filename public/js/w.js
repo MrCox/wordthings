@@ -5,7 +5,7 @@ var graph = d3.select('#graph').style('text-align', 'center')
 
 var width,
   sum = 0;
-input.on('keyup', function() {
+input.on('change', function() {
   var v = '/words?rack=' + this.value
   d3.json(v, function(e, j) {
     if (e) console.log(e);
@@ -20,7 +20,6 @@ input.on('keyup', function() {
 })
 
 function words(set) {
-  console.log(set)
   graph.selectAll('.cols').remove();
 
   var cols = graph.selectAll('.cols')
@@ -30,9 +29,9 @@ function words(set) {
     .append('div')
     .attr('class', 'cols')
     .style('float', 'left')
-    //.style('margin-left', function(d) { return d.key * 2 + 'px'})
-    //.style('margin-right', function(d) { return d.key * 2 + 'px'})
-    .style('width', function(d, i) { return width[i] * 100 / sum + '%'; })
+    .style('margin-left', function(d) { return d.key * 1.8 + 'px'})
+    .style('margin-right', function(d) { return d.key * 1.8 + 'px'})
+    //.style('width', function(d, i) { return width[i] * 100 / sum + '%'; })
     .append('div').attr('style', 'margin-bottom: 10px; text-align: center;')
     .append('p').text(function(d) { return Number(d.key) - 3})
     
