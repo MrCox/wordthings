@@ -16,20 +16,14 @@ function wordgen(dict, rack) {
         else if (k==j) {break}
         }
     if ( w.length == 0 ) { 
-      var l = v.length
-      try {
-        p[l - 2].push(v)
-      } catch(e) {
-        p[l - 2] = [v]
-      }
+        p.push(v);
     }}
     return p
   }
  
   function reduceRemove(p, v) {}
   
-  function reduceInitial(p, v) {return {}
-  }
+  function reduceInitial(p, v) {return [] }
   return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
 }
 
