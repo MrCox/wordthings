@@ -1,14 +1,13 @@
-.axis path, .axis line {
-  fill: none;
-  stroke: white; 
-  shape-rendering: crispEdges;
-}
-
-.axis text {
-  font: 15px sans-serif;
-  fill: #000;
-}
-
 text {
   text-anchor: middle;
+}
+.cols {
+  float: left;
+}
+.cols div{ 
+  margin-bottom: 10px;
+  text-align: center;
+}
+.message {
+  color: LightGray;
 }

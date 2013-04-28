@@ -8,7 +8,8 @@ html
     link( rel = 'stylesheet', href = '/public/css/foundation.css')
   body
     div.row
-      div.small-6.small-centered.columns(style='margin-top:10%;')
-        input#solver(type='text', placeholder='put anagram here' )
-      div#graph.small-12.small-centered.columns(style='overflow:auto;')
+      div.small-8.small-centered.columns(style='margin-top:10%;')
+        input#solver(type='text', placeholder='put anagram here',style='border: 1px solid #33add6;' )
+        div#message.small-12.small-centered.columns
+      div#graph.small-8.small-centered.columns(style='overflow:auto;text-align: center;')
         script(src = '/public/js/w.js')

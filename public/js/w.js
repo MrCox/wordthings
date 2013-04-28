@@ -1,9 +1,7 @@
-var input = d3.select('#solver')
-  .style('border', '1px solid LightBlue');
-
-var graph = d3.select('#graph').style('text-align', 'center');
-
-var oldWords = {}
+var input = d3.select('#solver'),
+  graph = d3.select('#graph'),
+  oldWords = {},
+  checker = [];
 
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
@@ -16,19 +14,16 @@ function anaCheck(w1, w2) {
   return r.length == 0
 }
 
-var checker = [];
 function group(d){
   if (checker.indexOf(d) == -1) {
     checker.push(d)
     graph.append('div')
       .attr('id', 'l' + d)
       .attr('class', 'cols')
-      .style('float', 'left')
       .style('margin-left', function() { return d * 1.8 + 'px'})
       .style('margin-right', function() { return d * 1.8 + 'px'})
       .append('div')
-      .attr('style', 'margin-bottom: 10px; text-align: center;')
-      .append('p').text(function() { return Number(d) - 5})
+      .append('b').text(function() { return Number(d) - 5})
   }
   return d;
 }
@@ -68,10 +63,15 @@ function words(set) {
   set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
 }
 
-var width;
 input.on('change', function() {
+  d3.select('#message').html('')
   var v = '/words?rack=' + this.value,
     va = this.value;
+  if (va.length > 44) {
+    var h = d3.select('#message')
+    .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! Are you trying to <i>kill</i> me?! You're at a " + va.length + " right now. How about toning it down to 45, champ?</p>"})
+  return;
+  }
   for (var k in oldWords) {
     if (anaCheck(k, va)) {
       wordgen(crossfilter(oldWords[k]), va);
