@@ -2,6 +2,7 @@ var input = d3.select('#solver'),
   graph = d3.select('#graph'),
   oldWords = {},
   checker = [];
+  sum = 0;
 
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
@@ -14,29 +15,24 @@ function anaCheck(w1, w2) {
   return r.length == 0
 }
 
-function adjust() {
-  console.log(checker.length)
-  graph.selectAll('.cols')
-    .style('width', function() { return 100 / checker.length + "%"})
-}
-
 function group(d){
   if (checker.indexOf(d) == -1) {
     checker.push(d)
+    sum += d;
     graph.append('div')
+      .datum(d)
       .attr('id', 'l' + d)
       .attr('class', 'cols')
       .append('div')
       .append('b').text(function() { return Number(d) - 5})
-    adjust();
   }
   return d;
 }
 
 function add(p,v) {
   graph.select('#l' + v.length).select('div')
-   .append('p')
    .datum(v)
+   .append('p')
    .attr('class', 'words')
    .text(function(d) { return d.slice(0, d.length - 5)});
 }
@@ -45,6 +41,7 @@ function r() {}
 function wordgen(dict, rack) {
   graph.selectAll('.cols').remove();
   checker = [];
+  sum = 0;
   var l = rack.length
   function reduceAdd(p, v) {
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
@@ -65,14 +62,21 @@ function wordgen(dict, rack) {
 function words(set) {
   graph.selectAll('.cols').remove();
   checker = [];
+  sum = 0;
   set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
+  var g = graph.selectAll('.cols')
+    .style('width', function(d) { return d * 100 / sum + "%"})
+  if (checker.length > 12) {
+    g.style('margin-right', function(d) { return d + 'px'})
+     .style('margin-left', function(d) { return d + 'px'})   
+  }
 }
 
 input.on('change', function() {
   d3.select('#message').html('')
   var v = '/words?rack=' + this.value,
     va = this.value;
-  if (va.length > 34) {
+  if (va.length > 35) {
     var h = d3.select('#message')
     .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
   return;
@@ -81,8 +85,14 @@ input.on('change', function() {
     if (anaCheck(k, va)) {
       wordgen(crossfilter(oldWords[k]), va);
       graph.selectAll('.cols').each(function(d) { 
-        if (d3.select(this).selectAll('.words').empty()){
-          d3.select(this).remove();
+        var t = d3.select(this)
+        if (t.selectAll('.words').empty()){
+          t.remove();
+        }
+        t.style('width', function(d) { return d * 100 / sum + '%'})
+        if (checker.length > 12) { 
+          t.style('margin-right', function(d) { return d + 'px'})
+            .style('margin-left', function(d) { return d + 'px'})
         }
       })
       return;
@@ -93,5 +103,10 @@ input.on('change', function() {
     words(j)
     oldWords[va] = j;
   })
+})
+.on('keyup', function() {
+  d3.select('#counter')
+    .text(this.value.length)
+    .attr('class', 'message')
 })
 
