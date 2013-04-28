@@ -66,8 +66,8 @@ function words(set) {
   set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
   var g = graph.selectAll('.cols')
     .style('width', function(d) { return d * 100 / sum + "%"})
-    .style('margin-right', function(d) { return d + 'px'})
-    .style('margin-left', function(d) { return d + 'px'})   
+    .style('margin-right', function(d) { return d / 2+ 'px'})
+    .style('margin-left', function(d) { return d / 2+ 'px'})   
 }
 
 input.on('change', function() {
@@ -88,8 +88,8 @@ input.on('change', function() {
           t.remove();
         }
         t.style('width', function(d) { return d * 100 / sum + '%'})
-         .style('margin-right', function(d) { return d + 'px'})
-         .style('margin-left', function(d) { return d + 'px'})
+         .style('margin-right', function(d) { return d/2 + 'px'})
+         .style('margin-left', function(d) { return d/2 + 'px'})
       })
       return;
     }
