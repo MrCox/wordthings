@@ -3,8 +3,7 @@ var express = require('express'),
   http = require('http'),
   fs = require('fs'),
   dict = require('./words'),
-  cross = require('crossfilter'),
-  wordgen = require('./wordgen')
+  cross = require('crossfilter')
 
 app.configure( function() {
   app.set('port', process.env.PORT || 80);
@@ -31,6 +30,37 @@ app.get('/', function(req, res) {
     })
 })
 
+function wordgen(dict, rack) {
+  var l = rack.length,
+    j = 0;
+  for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
+
+  function reduceAdd(p, v) {
+    if (l < v.length - 5) { return p; }
+    var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
+    k = 0;
+    while (w.length > 0) {
+      if ( r.indexOf(w[0]) != -1 ) {
+        var i = r.indexOf( w.shift() );
+        r.splice( i, 1 );
+      }
+      else { 
+        if (k<j) { w.shift(); k++ }
+        else if (k==j) {break}
+        }
+    if ( w.length == 0 ) { 
+        p.push(v);
+    }}
+    return p
+  }
+ 
+  function reduceRemove(p, v) {}
+  
+  function reduceInitial(p, v) {return [] }
+  return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
+}
+
+module.exports = wordgen;
 var d = cross(dict).groupAll();
 
 function words(req, res) {
@@ -38,8 +68,8 @@ function words(req, res) {
 }
 
 app.get('/words', function(req, res) {
-  if (req.query.rack.length <= 40) {
-    words(req, res);
+  if (req.query.rack.length <= 35) {
+    res.json(wordgen(d, String(req.query.rack).toLowerCase()));
   }
 })
 

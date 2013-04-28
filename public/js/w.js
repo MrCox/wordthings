@@ -67,9 +67,9 @@ input.on('change', function() {
   d3.select('#message').html('')
   var v = '/words?rack=' + this.value,
     va = this.value;
-  if (va.length > 39) {
+  if (va.length > 29) {
     var h = d3.select('#message')
-    .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! You're at " + va.length + " characters right now. How about toning it down to 40?</p>"})
+    .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
   return;
   }
   for (var k in oldWords) {
