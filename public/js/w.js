@@ -67,7 +67,6 @@ function words(set) {
   var g = graph.selectAll('.cols')
     .style('width', function(d) { return d * 100 / sum + "%"})
     .style('margin-right', function(d) { return d / 2+ 'px'})
-    .style('margin-left', function(d) { return d / 2+ 'px'})   
 }
 
 input.on('change', function() {
@@ -89,7 +88,6 @@ input.on('change', function() {
         }
         t.style('width', function(d) { return d * 100 / sum + '%'})
          .style('margin-right', function(d) { return d/2 + 'px'})
-         .style('margin-left', function(d) { return d/2 + 'px'})
       })
       return;
     }
