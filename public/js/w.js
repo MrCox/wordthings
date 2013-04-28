@@ -45,9 +45,9 @@ function tooMany() {
       t.remove();
     }
     t.style('width', function(d) { return d * 100 / sum + '%'})
-    if (checker.length > 11) {
+    if (checker.length > 10) {
       t.style('width', null)
-        .style('margin-right', function(d) { return d + 'px'})
+        .style('margin-right', function(d) { return d / 2 + 'px'})
     }
   })
 }
