@@ -65,8 +65,11 @@ function words(set) {
   sum = 0;
   set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
   var g = graph.selectAll('.cols')
-    .style('width', function(d) { return d * 100 / (sum + 10)+ "%"})
-    .style('margin-right', function(d) { return d + 'px'})
+    .style('width', function(d) { return d * 100/ sum + "%"})
+  if( checker.length > 10) { 
+    g.style('margin-right', function(d) { return d  + 'px'})
+      .style('margin-left', function(d) { return d + 'px'})
+  }
 }
 
 input.on('change', function() {
@@ -86,8 +89,11 @@ input.on('change', function() {
         if (t.selectAll('.words').empty()){
           t.remove();
         }
-        t.style('width', function(d) { return d * 100 / (sum + 10)+ '%'})
-         .style('margin-right', function(d) { return d + 'px'})
+        t.style('width', function(d) { return d * 100 / sum + '%'})
+        if (checker.length > 10) {
+          t.style('margin-right', function(d) { return d + 'px'})
+            .style('margin-left', function(d) {return d + 'px'})
+        }
       })
       return;
     }
