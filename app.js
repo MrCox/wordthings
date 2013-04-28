@@ -22,20 +22,25 @@ app.get('/gallop_safely', function(req, res) {
     if (err) throw err
   })
 })
-
+var k = 0;
 app.get('/', function(req, res) {
     res.render('layout.jade', {pageTitle: 'wordthings' })
+    k += 1;
+    fs.appendFile('./anacount.js', ', ' + k, function(e) {
+      if (e) throw e;
+    })
 })
 
-var d = cross(dict).groupAll(),
-k = 0;
+var d = cross(dict).groupAll();
+
+function words(req, res) {
+  res.json(wordgen(d, String(req.query.rack).toLowerCase()));
+}
 
 app.get('/words', function(req, res) {
-  res.json(wordgen(d, String(req.query.rack).toLowerCase()));
-  k += 1;
-  fs.appendFile('./anacount.js', ', ' + k, function(e) {
-    if (e) throw e;
-  })
+  if (req.query.rack.length <= 44) {
+    words(req, res);
+  }
 })
 
 app.get('/mapauth', function(req, res) {
