@@ -14,16 +14,21 @@ function anaCheck(w1, w2) {
   return r.length == 0
 }
 
+function adjust() {
+  console.log(checker.length)
+  graph.selectAll('.cols')
+    .style('width', function() { return 100 / checker.length + "%"})
+}
+
 function group(d){
   if (checker.indexOf(d) == -1) {
     checker.push(d)
     graph.append('div')
       .attr('id', 'l' + d)
       .attr('class', 'cols')
-      .style('margin-left', function() { return d * 1.8 + 'px'})
-      .style('margin-right', function() { return d * 1.8 + 'px'})
       .append('div')
       .append('b').text(function() { return Number(d) - 5})
+    adjust();
   }
   return d;
 }
