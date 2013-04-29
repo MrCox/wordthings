@@ -79,6 +79,7 @@ function words(set) {
   sum = 0;
   set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
   tooMany();
+  console.log(new Date().getTime() - now)
 }
 
 input.on('change', function() {

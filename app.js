@@ -63,7 +63,7 @@ function wordgen(dict, rack) {
 var d = cross(dict).groupAll();
 
 app.get('/words', function(req, res) {
-  if (req.query.rack.length < 35) {
+  if (req.query.rack.length <= 35) {
     res.json(wordgen(d, String(req.query.rack).toLowerCase()));
   }
 })
