@@ -3,7 +3,7 @@ var input = d3.select('#solver'),
   oldWords = {},
   checker = [];
   sum = 0;
-
+var now;
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
   while (r.length > 0) {
@@ -82,6 +82,7 @@ function words(set) {
 }
 
 input.on('change', function() {
+  now = new Date().getTime();
   d3.select('#message').html('')
   var v = '/words?rack=' + this.value,
     va = this.value;
@@ -101,6 +102,7 @@ input.on('change', function() {
     if (e) console.log(e);
     words(j)
     oldWords[va] = j;
+    console.log(new Date().getTime() - now);
   })
 })
 .on('keyup', function() {
