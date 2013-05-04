@@ -2,8 +2,9 @@ var express = require('express'),
   app = express(),
   http = require('http'),
   fs = require('fs'),
-  dict = require('./words'),
-  cross = require('crossfilter')
+  dict = require('./masterDict'),
+  cross = require('crossfilter'),
+  cp = require('child_process')
 
 app.configure( function() {
   app.set('port', process.env.PORT || 3000);
@@ -30,41 +31,31 @@ app.get('/', function(req, res) {
     })
 })
 
-function wordgen(dict, rack) {
-  var l = rack.length,
-    j = 0;
-  for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
-
-  function reduceAdd(p, v) {
-    if (l < v.length - 5) { return p; }
-    var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
-    k = 0;
-    while (w.length > 0) {
-      if ( r.indexOf(w[0]) != -1 ) {
-        var i = r.indexOf( w.shift() );
-        r.splice( i, 1 );
-      }
-      else { 
-        if (k<j) { w.shift(); k++ }
-        else if (k==j) {break}
-        }
-    if ( w.length == 0 ) { 
-        p.push(v);
-    }}
-    return p
-  }
- 
-  function reduceRemove(p, v) {}
-  
-  function reduceInitial(p, v) {return [] }
-  return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
+var children = {}
+for (var len in dict) {
+  children[len] = cp.fork('./wordgen')
 }
 
-var d = cross(dict).groupAll();
+function words(rack, res) {
+  var start = new Date()
+  var l = rack.length,
+    words = [],
+    count = 0;
+
+  function tattle() {count += 1; if (count == l - 1) {res.send(words);console.log(new Date() - start)}}
+  for (var i = 7; i<=l + 5 && i != 31; i++) {
+    var c = children[i]; 
+    c.on('message', function(d) {
+      for (var i in d) { words.push(d[i]);}
+      tattle();
+    })
+    c.send([rack, dict[i]]) 
+  }
+}
 
 app.get('/words', function(req, res) {
   if (req.query.rack.length <= 35) {
-    res.json(wordgen(d, String(req.query.rack).toLowerCase()));
+    words(req.query.rack, res);
   }
 })
 

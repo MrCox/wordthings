@@ -1,4 +1,6 @@
-function wordgen(dict, rack) {
+var cross = require('crossfilter')
+process.on('message', function(ar){
+  var dict = cross(ar[1]).groupAll(), rack = ar[0]
   var l = rack.length,
     j = 0;
   for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
@@ -25,7 +27,5 @@ function wordgen(dict, rack) {
   function reduceRemove(p, v) {}
   
   function reduceInitial(p, v) {return [] }
-  return dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value()
-}
-
-module.exports = wordgen;
+  process.send( dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value() )
+})
