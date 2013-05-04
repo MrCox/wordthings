@@ -7,7 +7,7 @@ var express = require('express'),
   cp = require('child_process')
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -42,7 +42,7 @@ function words(rack, res) {
     words = [],
     count = 0;
 
-  function tattle() {count += 1; if (count == l - 1) {res.send(words);console.log(new Date() - start)}}
+  function tattle() {count += 1; if (count == l - 1) {res.send(words)}}
   for (var i = 7; i<=l + 5 && i != 31; i++) {
     var c = children[i]; 
     c.on('message', function(d) {
