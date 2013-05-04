@@ -6,8 +6,10 @@ var express = require('express'),
   cross = require('crossfilter'),
   cp = require('child_process')
 
+process.setMaxListeners(0);
+
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -31,22 +33,22 @@ app.get('/', function(req, res) {
     })
 })
 
-var children = {}
+var child = {}
 for (var len in dict) {
-  children[len] = cp.fork('./wordgen')
+  child[len] = cp.fork('./wordgen')
 }
-
 function words(rack, res) {
   var start = new Date()
   var l = rack.length,
-    words = [],
+    words = {},
     count = 0;
 
-  function tattle() {count += 1; if (count == l - 1) {res.send(words)}}
-  for (var i = 7; i<=l + 5 && i != 31; i++) {
-    var c = children[i]; 
+  function tattle() {count += 1; if (count == l - 1) {res.send(words);)}}
+  for (var i = 7; i<=l + 5; i++) {
+    var c = child[i];
+    if (!c) { count += 1; continue; }
     c.on('message', function(d) {
-      for (var i in d) { words.push(d[i]);}
+      if (d[0]) words[d[0].length] = d;
       tattle();
     })
     c.send([rack, dict[i]]) 

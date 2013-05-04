@@ -15,49 +15,38 @@ function anaCheck(w1, w2) {
   return r.length == 0
 }
 
-function group(d){
-  if (checker.indexOf(d) == -1) {
-    checker.push(d)
-    sum += d;
-    graph.append('div')
-      .datum(d)
-      .attr('id', 'l' + d)
-      .attr('class', 'cols')
-      .append('div')
-      .append('b').text(function() { return Number(d) - 5})
-  }
-  return d;
-}
-
-function add(p,v) {
-  graph.select('#l' + v.length).select('div')
-   .datum(v)
-   .append('p')
-   .attr('class', 'words')
-   .text(function(d) { return d.slice(0, d.length - 5)});
-}
-function r() {}
-
 function tooMany() {
   graph.selectAll('.cols').each(function(d) { 
     var t = d3.select(this)
     if (t.selectAll('.words').empty()) {
       t.remove();
     }
-    t.style('width', function(d) { return d * 100 / sum + '%'})
+    t.style('width', function(d) {return Number(d.key) * 100 / sum + '%'})
     if (checker.length > 10) {
       t.style('width', null)
-        .style('margin-right', function(d) { return d / 2 + 'px'})
+        .style('margin-right', function(d) { return Number(d.key) / 2 + 'px'})
     }
   })
 }
 
+
 function wordgen(dict, rack) {
-  graph.selectAll('.cols').remove();
-  checker = [];
-  sum = 0;
-  var l = rack.length
-  function reduceAdd(p, v) {
+  var ld = dict[0].length,
+    l = rack.length
+  checker.push(ld)
+  sum += ld;
+  graph.select('#l' + ld).remove();
+  var col = graph.append('div')
+    .attr('id', function(d) { return 'l' + ld})
+    .attr('class', 'cols')
+    .datum({key:ld})
+
+  col.append('div')
+    .datum(ld)
+    .append('b')
+    .text(function(d) { return d - 5})
+  
+  dict.forEach(function(v){
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
     k = 0;
     while (w.length > 0) {
@@ -67,17 +56,36 @@ function wordgen(dict, rack) {
       }
       else {break}
     if ( w.length == 0 ) { 
-      add(p, v);
+      col.append('div')
+        .datum(v)
+        .append('p')
+        .attr('class', 'words')
+        .text(function(d) { return d.slice(0, d.length - 5)})
     }}
-  }
-  return dict.dimension(function(d) { return d.length }).group(group).reduce(reduceAdd, r, r).all();
+  })
 }
 
 function words(set) {
   graph.selectAll('.cols').remove();
   checker = [];
   sum = 0;
-  set = crossfilter(set).dimension(function(d) { return d.length }).group(group).reduce(add, r, r).all()
+  var col = graph.selectAll('.cols')
+    .data(d3.entries(set))
+    .enter().append('div')
+    .attr('id', function(d) { return 'l' + d.key })
+    .attr('class', 'cols')
+    
+  col.append('div')
+    .append('b')
+    .text(function(d) { var k = Number(d.key);checker.push(k);sum += k; return k - 5})
+
+  col.selectAll('p')
+    .data(function(d) { return d.value})
+    .enter().append('div')
+    .append('p')
+    .attr('class', 'words')
+    .text(function(d) { return d.slice(0, d.length - 5)})
+
   tooMany();
   console.log(new Date().getTime() - now)
 }
@@ -94,12 +102,16 @@ input.on('change', function() {
   }
   for (var k in oldWords) {
     if (anaCheck(k, va)) {
-      wordgen(crossfilter(oldWords[k]), va);
+      sum = 0;
+      for (var j in oldWords[k]) {
+        wordgen(oldWords[k][j], va);
+      }
       tooMany();
       return;
     }
   }
   d3.json(v, function(e, j) {
+    console.log(j)
     if (e) console.log(e);
     words(j)
     oldWords[va] = j;
