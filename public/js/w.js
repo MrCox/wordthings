@@ -111,7 +111,6 @@ input.on('change', function() {
     }
   }
   d3.json(v, function(e, j) {
-    console.log(j)
     if (e) console.log(e);
     words(j)
     oldWords[va] = j;
