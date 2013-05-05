@@ -33,24 +33,32 @@ app.get('/', function(req, res) {
     })
 })
 
-var child = {}
+var child = {} 
 for (var len in dict) {
-  child[len] = cp.fork('./wordgen')
+  child[len] =  cp.fork('./wordgen');
 }
 function words(rack, res) {
   var start = new Date()
   var l = rack.length,
     words = {},
-    count = 0;
+    count = 0,
+    j = 7
 
-  function tattle() {count += 1; if (count == l - 1) {res.send(words);)}}
-  for (var i = 7; i<=l + 5; i++) {
-    var c = child[i];
+  function tattle(d) {
+    if (d[0]) {
+      words[d[0].length] = d;
+    }
+    count += 1; 
+    if (count == l - 1) {res.send(words);}
+  }
+
+  for (var i = 7; i <= l + 5;i++) {
+    var c = child[j];
     if (!c) { count += 1; continue; }
     c.on('message', function(d) {
-      if (d[0]) words[d[0].length] = d;
-      tattle();
+      tattle(d);
     })
+    j = j < 33 ? j + 1 : 0; 
     c.send([rack, dict[i]]) 
   }
 }

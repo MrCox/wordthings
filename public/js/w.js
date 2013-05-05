@@ -29,7 +29,6 @@ function tooMany() {
   })
 }
 
-
 function wordgen(dict, rack) {
   var ld = dict[0].length,
     l = rack.length
