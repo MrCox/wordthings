@@ -9,7 +9,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');

@@ -87,11 +87,9 @@ function words(set) {
     .text(function(d) { return d.slice(0, d.length - 5)})
 
   tooMany();
-  console.log(new Date().getTime() - now)
 }
 
 input.on('change', function() {
-  now = new Date().getTime();
   d3.select('#message').html('')
   var v = '/words?rack=' + this.value,
     va = this.value;
@@ -116,7 +114,6 @@ input.on('change', function() {
     if (e) console.log(e);
     words(j)
     oldWords[va] = j;
-    console.log(new Date().getTime() - now);
   })
 })
 .on('keyup', function() {
