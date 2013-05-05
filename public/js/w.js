@@ -19,14 +19,15 @@ function tooMany() {
   graph.selectAll('.cols').each(function(d) { 
     var t = d3.select(this)
     if (t.selectAll('.words').empty()) {
+      var k = t.select('div b').datum().key
+      sum -= k;
+      checker.splice( checker.indexOf(k), 1)
       t.remove();
     }
-    t.style('width', function(d) {return Number(d.key) * 100 / sum + '%'})
-    if (checker.length > 10) {
-      t.style('width', null)
-        .style('margin-right', function(d) { return Number(d.key) / 2 + 'px'})
-    }
   })
+  graph.selectAll('.cols')
+    .style('width',function(d){return checker.length > 10 ? null : Number(d.key) * 100 / sum + '%'})
+    .style('margin-right',function(d){return checker.length > 10 ? Number(d.key) / 2 + 'px' : null})
 }
 
 function wordgen(dict, rack) {
@@ -102,6 +103,8 @@ input.on('change', function() {
   for (var k in oldWords) {
     if (anaCheck(k, va)) {
       sum = 0;
+      checker = [];
+      graph.selectAll('.cols').remove();
       for (var j in oldWords[k]) {
         wordgen(oldWords[k][j], va);
       }
