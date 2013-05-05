@@ -9,7 +9,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -33,16 +33,16 @@ app.get('/', function(req, res) {
     })
 })
 
-var child = {} 
-for (var len in dict) {
-  child[len] =  cp.fork('./wordgen');
+var child = []
+for (var l = 0; l < 26; l ++) {
+  child.push( cp.fork('./wordgen'))
 }
 function words(rack, res) {
   var start = new Date()
   var l = rack.length,
     words = {},
     count = 0,
-    j = 7
+    j = 0
 
   function tattle(d) {
     if (d[0]) {
@@ -53,12 +53,12 @@ function words(rack, res) {
   }
 
   for (var i = 7; i <= l + 5;i++) {
+    if (!dict[i]) {count ++; continue;}
     var c = child[j];
-    if (!c) { count += 1; continue; }
     c.on('message', function(d) {
       tattle(d);
     })
-    j = j < 33 ? j + 1 : 0; 
+    j = j < 25 ? j + 1 : 0; 
     c.send([rack, dict[i]]) 
   }
 }
