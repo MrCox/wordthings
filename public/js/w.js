@@ -1,9 +1,12 @@
 var input = d3.select('#solver'),
   graph = d3.select('#graph'),
+  dictDiv = d3.select('#dicts'),
   oldWords = {},
-  checker = [];
-  sum = 0;
-var now;
+  checker = [],
+  sum = 0,
+  wordsum = 0,
+  alias = [1, 1, 1, 1, 1]
+
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
   while (r.length > 0) {
@@ -13,6 +16,13 @@ function anaCheck(w1, w2) {
     } else {break}
   }
   return r.length == 0
+}
+
+function wordcount() {
+  x = d3.selectAll('.words')
+  d3.select('#wordcount')
+    .select('i')
+    .html(function(d) { return wordsum + ' results'})
 }
 
 function tooMany() {
@@ -30,11 +40,41 @@ function tooMany() {
     .style('margin-right',function(d){return checker.length > 10 ? Number(d.key) / 2 + 'px' : null})
 }
 
+function graphFilter() {
+  var words = graph.selectAll('.words').style('display', function(d) { 
+    var ds = d.slice(d.length - 5, d.length).split('')
+    for (var i in alias) {
+      if (alias[i] == 1 && ds[i] == 1)  {
+        wordsum += 1;
+        return '';
+      }
+    }
+    return 'none';
+  })
+  wordcount();
+}
+
+function filter() {
+  var words = graph.selectAll('.words').style('display', function(d) {
+    var ds = d.slice(d.length - 5, d.length).split('')
+    for (var i in alias) {
+      if (alias[i] == 1 && ds[i] == 1)  {
+        if (d3.select(this).style('display') == 'none') { wordsum += 1; }
+        return '';
+      }
+    }
+    if (d3.select(this).style('display') != 'none') { wordsum -= 1; }
+    return 'none';
+  })
+  wordcount();
+}
+
 function wordgen(dict, rack) {
   var ld = dict[0].length,
     l = rack.length
   checker.push(ld)
   sum += ld;
+  wordsum = 0;
   graph.select('#l' + ld).remove();
   var col = graph.append('div')
     .attr('id', function(d) { return 'l' + ld})
@@ -53,22 +93,25 @@ function wordgen(dict, rack) {
       if ( r.indexOf(w[0]) != -1 ) {
         var i = r.indexOf( w.shift() );
         r.splice( i, 1 );
+      } else {break}
+      if ( w.length == 0 ) { 
+        col.append('div')
+          .datum(v)
+          .append('p')
+          .attr('class', 'words')
+          .text(function(d) { return d.slice(0, d.length - 5)})
       }
-      else {break}
-    if ( w.length == 0 ) { 
-      col.append('div')
-        .datum(v)
-        .append('p')
-        .attr('class', 'words')
-        .text(function(d) { return d.slice(0, d.length - 5)})
-    }}
+    }
   })
+  tooMany();
+  graphFilter();
 }
 
 function words(set) {
   graph.selectAll('.cols').remove();
   checker = [];
   sum = 0;
+  wordsum = 0;
   var col = graph.selectAll('.cols')
     .data(d3.entries(set))
     .enter().append('div')
@@ -85,8 +128,9 @@ function words(set) {
     .append('p')
     .attr('class', 'words')
     .text(function(d) { return d.slice(0, d.length - 5)})
-
+  
   tooMany();
+  graphFilter();
 }
 
 input.on('change', function() {
@@ -122,3 +166,26 @@ input.on('change', function() {
     .attr('class', 'message')
 })
 
+var d = d3.selectAll('label input')
+d.property('checked', true)
+d.attr('check', true)
+
+d.on('click', function(d) {
+  var code = [];
+  if (d3.select(this).attr('check') == 'true') {
+    d3.select(this).property('checked', false)
+    d3.select(this).attr('check', false)
+  } else if (d3.select(this).attr('check') == 'false' ){
+    d3.select(this).property('checked',true)
+    d3.select(this).attr('check', true)
+  }
+  d3.selectAll('label input').each(function(d) {
+    if(d3.select(this).attr('check') == 'true') {
+      code.push(1);
+    } else if (d3.select(this).attr('check') == 'false'){  
+      code.push(0);
+    }
+  })
+  alias = code;
+  filter();
+})

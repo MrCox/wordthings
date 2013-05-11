@@ -3,7 +3,6 @@ var express = require('express'),
   http = require('http'),
   fs = require('fs'),
   dict = require('./masterDict'),
-  cross = require('crossfilter'),
   cp = require('child_process')
 
 process.setMaxListeners(0);

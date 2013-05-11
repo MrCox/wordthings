@@ -1,11 +1,10 @@
-var cross = require('crossfilter')
 process.on('message', function(ar){
-  var dict = cross(ar[1]).groupAll(), rack = ar[0], res = ar[2]
+  var dict = ar[1], rack = ar[0], res = ar[2]
   var l = rack.length,
     j = 0;
   for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
-
-  function reduceAdd(p, v) {
+  var p = [];
+  dict.forEach(function(v){
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
     k = 0;
     while (w.length > 0) {
@@ -17,14 +16,10 @@ process.on('message', function(ar){
         if (k<j) { w.shift(); k++ }
         else if (k==j) {break}
         }
-    if ( w.length == 0 ) { 
-      p.push(v)
-    }}
-    return p;
-  }
- 
-  function reduceRemove(p, v) {}
-  
-  function reduceInitial(p, v) {return [] }
-  process.send(dict.reduce( reduceAdd, reduceRemove, reduceInitial ).value());
+      if ( w.length == 0 ) { 
+        p.push(v)
+      }
+    }
+  })
+  process.send(p)
 })

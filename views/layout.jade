@@ -9,8 +9,28 @@ html
   body
     div.row
       div.small-8.small-centered.columns(style='margin-top:10%;')
-        div#counter.small-12.small-centered.columns(style = 'margin-bottom:5px; margin-left:5px;')
-        input#solver(type='text', placeholder='put anagram here',style='border: 1px solid #33add6;' )
-        div#message.small-12.small-centered.columns(style = 'text-align:center;')
+        div#counter.small-12.small-centered.columns
+        input#solver(type='text', placeholder='put anagram here')
+        div#dicts.small-12.columns
+          div.dict
+            <i>dictionaries: <i>
+          div.dict
+            label
+              <input type = 'radio'> enable </label> 
+          div.dict
+            label
+              <input type = 'radio'> ospd4
+          div.dict
+            label
+              <input type = 'radio'> owl
+          div.dict
+            label
+              <input type = 'radio'> sowpods
+          div.dict
+            label
+              <input type = 'radio'> twl06
+        div#message.small-12.small-centered.columns
+        div#wordcount.small-12.columns
+          i
       div#graph.small-8.small-centered.columns
         script(src = '/public/js/w.js')
