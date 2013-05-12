@@ -1,11 +1,12 @@
 var input = d3.select('#solver'),
   graph = d3.select('#graph'),
   dictDiv = d3.select('#dicts'),
-  oldWords = {},
   checker = [],
   sum = 0,
   wordsum = 0,
   alias = [1, 1, 1, 1, 1]
+
+oldWords = {};
 
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
@@ -18,8 +19,26 @@ function anaCheck(w1, w2) {
   return r.length == 0
 }
 
+function highlight(word, rack) {
+  word = word.slice(0, word.length - 5);
+  var r = '',
+  w = '';
+  for (var i in rack) {
+    if (rack[i] != '*') {
+      r += rack[i];
+    }
+  }
+  for (var i in word) {
+    if (r.search(word[i]) == -1) {
+      w += '<b style = "color:red">' + word[i] + '</b>';
+    } else {
+      w += word[i];
+    }
+  }
+  return w;
+}
+
 function wordcount() {
-  x = d3.selectAll('.words')
   d3.select('#wordcount')
     .select('i')
     .html(function(d) { return wordsum + ' results'})
@@ -69,6 +88,15 @@ function filter() {
   wordcount();
 }
 
+function starCheck(rack) {
+  for (var i in rack) {
+    if (rack[i] == '*') {
+      return highlight;
+    }
+  }
+  return (function(d) { return d.slice(0, d.length - 5)});
+}
+
 function wordgen(dict, rack) {
   var ld = dict[0].length,
     l = rack.length
@@ -76,6 +104,9 @@ function wordgen(dict, rack) {
   sum += ld;
   wordsum = 0;
   graph.select('#l' + ld).remove();
+
+  var action = starCheck(rack);
+
   var col = graph.append('div')
     .attr('id', function(d) { return 'l' + ld})
     .attr('class', 'cols')
@@ -99,7 +130,7 @@ function wordgen(dict, rack) {
           .datum(v)
           .append('p')
           .attr('class', 'words')
-          .text(function(d) { return d.slice(0, d.length - 5)})
+          .html(function(d) { return action(d, rack)})
       }
     }
   })
@@ -107,11 +138,13 @@ function wordgen(dict, rack) {
   graphFilter();
 }
 
-function words(set) {
+function words(set, va) {
   graph.selectAll('.cols').remove();
   checker = [];
   sum = 0;
   wordsum = 0;
+  var action = starCheck(va);
+
   var col = graph.selectAll('.cols')
     .data(d3.entries(set))
     .enter().append('div')
@@ -127,7 +160,7 @@ function words(set) {
     .enter().append('div')
     .append('p')
     .attr('class', 'words')
-    .text(function(d) { return d.slice(0, d.length - 5)})
+    .html(function(d) { return action(d, va); })
   
   tooMany();
   graphFilter();
@@ -156,7 +189,7 @@ input.on('change', function() {
   }
   d3.json(v, function(e, j) {
     if (e) console.log(e);
-    words(j)
+    words(j, va)
     oldWords[va] = j;
   })
 })
