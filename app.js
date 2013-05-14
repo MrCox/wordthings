@@ -70,8 +70,11 @@ app.get('/words', function(req, res) {
 
 app.get('/mapauth', function(req, res) {
   if (req.query.password == "The eyes are on the roofs and in the alleys.") {
+    res.render('userMap.jade', {PageTitle: 'Gallop Safely!'})
+  } else if ( req.query.password == "It's me, Sut'jinn.") {
     res.render('for_map.jade', {PageTitle: 'Gallop Safely!'})
-  } else { res.render('mapauth.jade', {PageTitle: "You F*&K3D up."})}
+  } else { res.render('mapauth.jade', {PageTitle: "You F*&K3D up."})
+  }
 })
 
 app.get('/mapdata', function(req, res) {

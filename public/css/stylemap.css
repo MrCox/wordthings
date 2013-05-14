@@ -33,9 +33,23 @@
 p { color: gray; 
 }
 
+.header {
+  color: #93cccc;
+  font-weight: 900;
+}
+
 b { color: #669999; }
 
-#gta { color: #85ffff;
+#gta { 
+  color: #93cccc;
+  margin-bottom: 10px;
+}
+
+#title {
+  border: 1px solid GhostWhite;
+  text-align: center;
+  box-shadow: 3px 3px 3px GhostWhite;
+  margin-bottom: 10px;
 }
 
 #message { 
