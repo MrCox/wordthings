@@ -1,5 +1,5 @@
 process.on('message', function(ar){
-  var dict = ar[1], rack = ar[0], res = ar[2]
+  var dict = ar[1], rack = ar[0];
   var l = rack.length,
     j = 0;
   for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
