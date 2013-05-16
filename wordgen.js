@@ -3,6 +3,7 @@ process.on('message', function(ar){
   var l = rack.length,
     j = 0;
   for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
+  if (dict[0].length <= j){ process.send(dict); return;}
   var p = [];
   dict.forEach(function(v){
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
