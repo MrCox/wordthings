@@ -8,7 +8,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -37,7 +37,6 @@ for (var l = 0; l < 26; l ++) {
   child.push( cp.fork('./wordgen'))
 }
 function words(rack, res) {
-  var start = new Date()
   var l = rack.length,
     words = {},
     count = 0,

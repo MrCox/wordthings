@@ -39,9 +39,11 @@ function highlight(word, rack) {
 }
 
 function wordcount() {
-  d3.select('#wordcount')
-    .select('i')
-    .html(function(d) { return wordsum + ' results'})
+  if (wordsum > 0) {
+    d3.select('#wordcount')
+      .select('i')
+      .html(function(d) { return wordsum + ' results'})
+  }
 }
 
 function tooMany() {
@@ -199,20 +201,64 @@ input.on('change', function() {
     .attr('class', 'message')
 })
 
-var d = d3.selectAll('label input')
+var d = d3.select('#dicts').selectAll('label input'),
+  s = d3.select('#sorting').selectAll('label input')
+
 d.property('checked', true)
 d.attr('check', true)
+s.property('checked', true)
+s.attr('check', true)
 
-d.on('click', function(d) {
-  var code = [];
-  if (d3.select(this).attr('check') == 'true') {
-    d3.select(this).property('checked', false)
-    d3.select(this).attr('check', false)
-  } else if (d3.select(this).attr('check') == 'false' ){
-    d3.select(this).property('checked',true)
-    d3.select(this).attr('check', true)
+function change(t) {
+  t = d3.select(t),
+  tc = t.attr('check')
+  if (tc == 'true') {
+    t.property('checked', false)
+    t.attr('check', false)
+  } else if (tc == 'false' ){
+    t.property('checked',true)
+    t.attr('check', true)
   }
-  d3.selectAll('label input').each(function(d) {
+}
+
+d3.select('#sorting').selectAll('label').on('click', function(d) {
+  var t = this, 
+    td = d3.select(t),
+    tdh = td.html(),
+    sl = tdh.slice(tdh.length - 12, tdh.length),
+    ls = tdh.slice(tdh.length - 20, tdh.length),
+    st = tdh.slice(tdh.length - 9, tdh.length),
+    ts = tdh.slice(tdh.length - 10, tdh.length);
+  if (sl == 'alphabetical') {
+    td.html('<input type="radio" UNCHECKED>reverse alphabetical')
+    d3.selectAll('.cols').each(function() { 
+      d3.select(this).selectAll('.words')
+        .sort(d3.descending)
+    })
+  } 
+  if (ls == 'reverse alphabetical'){
+    td.html('<input type="radio" CHECKED> alphabetical')
+    d3.selectAll('.cols').each(function() { d3.select(this).selectAll('.words')
+      .sort(d3.ascending)
+    })
+  }
+  if (st == 'ascending') {
+    td.html('<input type="radio" UNCHECKED>descending')
+    d3.selectAll('.cols').sort(function(a, b) { 
+      a = Number(a.key); b = Number(b.key); return a < b ? 1 : a > b ? -1 : 0;
+    })
+  }
+  if (ts == 'descending') {
+    td.html('<input type="radio" CHECKED>ascending')
+    d3.selectAll('.cols').sort(function(a, b) {
+      a = Number(a.key); b = Number(b.key); return a < b ? -1 : a > b ? 1 : 0;
+    })
+  }
+})
+d.on('click', function(d) {
+  var code = [], t = this
+  change(t); 
+  d3.select('#dicts').selectAll('label input').each(function(d) {
     if(d3.select(this).attr('check') == 'true') {
       code.push(1);
     } else if (d3.select(this).attr('check') == 'false'){  
