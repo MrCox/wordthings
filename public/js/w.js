@@ -166,7 +166,7 @@ function words(set, va) {
   tooMany();
   graphFilter();
 }
-var alph = 'abcdefghijklmnopqrstuvwxyz'
+var alph = 'abcdefghijklmnopqrstuvwxyz*'
 alph = alph.split('')
 
 input.on('change', function() {
