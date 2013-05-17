@@ -163,22 +163,30 @@ function words(set, va) {
     .append('p')
     .attr('class', 'words')
     .html(function(d) { return action(d, va); })
+    .sort(d3.ascending) //make this check for datum element of checkbox
   
   tooMany();
   graphFilter();
 }
+var alph = 'abcdefghijklmnopqrstuvwxyz'
 
 input.on('change', function() {
-  d3.select('#message').html('')
-  var v = '/words?rack=' + this.value,
-    va = this.value;
+  d3.select('#message').html(null)
+  var va = this.value,
+    nv = '';
   if (va.length > 35) {
-    var h = d3.select('#message')
+   d3.select('#message')
     .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
   return;
   }
+  for(var i in va){
+    if (alph.search(va[i]) != -1) {
+      nv += va[i];
+    }
+ }
+  var v = '/words?rack=' + nv;
   for (var k in oldWords) {
-    if (anaCheck(k, va)) {
+    if (anaCheck(k, nv)) {
       sum = 0;
       checker = [];
       graph.selectAll('.cols').remove();
@@ -191,8 +199,8 @@ input.on('change', function() {
   }
   d3.json(v, function(e, j) {
     if (e) console.log(e);
-    words(j, va)
-    oldWords[va] = j;
+    words(j, nv)
+    oldWords[nv] = j;
   })
 })
 .on('keyup', function() {
@@ -232,27 +240,37 @@ d3.select('#sorting').selectAll('label').on('click', function(d) {
   if (sl == 'alphabetical') {
     td.html('<input type="radio" UNCHECKED>reverse alphabetical')
     d3.selectAll('.cols').each(function() { 
-      d3.select(this).selectAll('.words')
-        .sort(d3.descending)
+      var d = d3.select(this).selectAll('.words')
+      d[0].reverse();
+      d.order();
     })
   } 
   if (ls == 'reverse alphabetical'){
     td.html('<input type="radio" CHECKED> alphabetical')
-    d3.selectAll('.cols').each(function() { d3.select(this).selectAll('.words')
-      .sort(d3.ascending)
+    d3.selectAll('.cols').each(function() { 
+      var e = d3.select(this).selectAll('.words'),
+      n = [],
+      el = e[0].length;
+      e[0].forEach(function(d,i) {
+        n[el - 1 - i] = d
+      })
+      for (var i; i< el - 1; i++) {
+        e[0][i] = n[i]
+      }
+      e.order();
     })
   }
   if (st == 'ascending') {
     td.html('<input type="radio" UNCHECKED>descending')
-    d3.selectAll('.cols').sort(function(a, b) { 
-      a = Number(a.key); b = Number(b.key); return a < b ? 1 : a > b ? -1 : 0;
-    })
+    var d = d3.selectAll('.cols')
+    d[0].reverse();
+    d.order();
   }
   if (ts == 'descending') {
     td.html('<input type="radio" CHECKED>ascending')
-    d3.selectAll('.cols').sort(function(a, b) {
-      a = Number(a.key); b = Number(b.key); return a < b ? -1 : a > b ? 1 : 0;
-    })
+    var d = d3.selectAll('.cols');
+    d[0].reverse();
+    d.order();
   }
 })
 d.on('click', function(d) {
