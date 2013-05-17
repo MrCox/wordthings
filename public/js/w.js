@@ -167,6 +167,7 @@ function words(set, va) {
   graphFilter();
 }
 var alph = 'abcdefghijklmnopqrstuvwxyz'
+alph = alph.split('')
 
 input.on('change', function() {
   d3.select('#message').html(null)
@@ -178,7 +179,7 @@ input.on('change', function() {
   return;
   }
   for(var i in va){
-    if (alph.search(va[i]) != -1) {
+    if (alph.indexOf(va[i]) != -1) {
       nv += va[i];
     }
  }
