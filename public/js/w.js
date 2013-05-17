@@ -163,8 +163,6 @@ function words(set, va) {
     .append('p')
     .attr('class', 'words')
     .html(function(d) { return action(d, va); })
-    .sort(d3.ascending) //make this check for datum element of checkbox
-  
   tooMany();
   graphFilter();
 }
