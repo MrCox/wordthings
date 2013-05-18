@@ -36,7 +36,6 @@ function highlight(word, rack) {
       w += word[i];
     }
   }
-  console.log(w)
   return w;
 }
 
@@ -60,7 +59,7 @@ function tooMany() {
   })
   graph.selectAll('.cols')
     .style('width',function(d){return checker.length >= 11 ? null : Number(d.key) * 100 / (sum + 5 * checker.length)+ '%'})
-    .style('margin-right',function(d){return checker.length >= 11 ? (Number(d.key) - 5) / 2 + 'px' : null})
+    .style('margin-right',function(d){return checker.length >= 10 ? (Number(d.key) - 5) / 2 + 'px' : null})
 }
 
 function graphFilter() {
@@ -220,7 +219,6 @@ input.on('change', function() {
     }
   }
   d3.json(v, function(e, j) {
-    console.log(new Date() - start)
     if (e) console.log(e);
     words(j, nv)
     oldWords[nv] = j;
