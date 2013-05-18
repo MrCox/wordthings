@@ -4,6 +4,7 @@ text {
 .cols {
   float: left;
   border-top: 3px solid GhostWhite;
+  text-align: center;
 }
 .cols div{ 
   margin-bottom: 2.5%;

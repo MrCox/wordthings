@@ -4,7 +4,8 @@ var input = d3.select('#solver'),
   checker = [],
   sum = 0,
   wordsum = 0,
-  alias = [1, 1, 1, 1, 1]
+  alias = [1, 1, 1, 1, 1],
+  rendered;
 
 oldWords = {};
 
@@ -57,8 +58,8 @@ function tooMany() {
     }
   })
   graph.selectAll('.cols')
-    .style('width',function(d){return checker.length > 10 ? null : Number(d.key) * 100 / sum + '%'})
-    .style('margin-right',function(d){return checker.length > 10 ? Number(d.key) / 2 + 'px' : null})
+    .style('width',function(d){return checker.length > 11 ? null : (Number(d.key) - 5) * 100 / sum + '%'})
+    .style('margin-right',function(d){return checker.length > 11 ? (Number(d.key) - 5) / 2 + 'px' : null})
 }
 
 function graphFilter() {
@@ -140,29 +141,43 @@ function wordgen(dict, rack) {
   graphFilter();
 }
 
-function words(set, va) {
-  graph.selectAll('.cols').remove();
-  checker = [];
-  sum = 0;
-  wordsum = 0;
-  var action = starCheck(va);
+function makeWords(set, va) {
+  var action = starCheck(va)
 
-  var col = graph.selectAll('.cols')
-    .data(d3.entries(set))
-    .enter().append('div')
+  var coldat = graph.selectAll('.cols').data(d3.entries(set))
+
+  coldat.enter().append('div')
     .attr('id', function(d) { return 'l' + d.key })
     .attr('class', 'cols')
-    
-  col.append('div')
+    .append('div')
     .append('b')
     .text(function(d) { var k = Number(d.key);checker.push(k);sum += k; return k - 5})
 
-  col.selectAll('p')
-    .data(function(d) { return d.value})
-    .enter().append('div')
-    .append('p')
-    .attr('class', 'words')
-    .html(function(d) { return action(d, va); })
+  coldat.exit()
+    .each(function(d) {
+      var k = Number(d.key);
+      checker.splice( checker.indexOf(k), 1 );
+      sum -= 0;
+    })
+    .remove();
+    
+  graph.selectAll('.cols').each(function(d) {
+    var wordat = d3.select(this).selectAll('p').data(function(d) { return d.value})
+      
+    wordat.enter().append('p')
+      .attr('class', 'words')
+      .html(function(d) {return action(d, va); })
+
+    wordat.exit()
+      .remove();
+
+    d3.select(this).selectAll('p')
+      .html(function(d) { return action(d, va);})
+  })
+} 
+
+function words(set, va) {
+  makeWords(set, va);
   tooMany();
   graphFilter();
 }
@@ -174,8 +189,7 @@ input.on('change', function() {
   var va = this.value,
     nv = '';
   if (va.length > 35) {
-   d3.select('#message')
-    .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
+   d3.select('#message') .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
   return;
   }
   for(var i in va){
