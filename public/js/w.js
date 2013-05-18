@@ -4,8 +4,7 @@ var input = d3.select('#solver'),
   checker = [],
   sum = 0,
   wordsum = 0,
-  alias = [1, 1, 1, 1, 1],
-  rendered;
+  alias = [1, 1, 1, 1, 1]
 
 oldWords = {};
 
@@ -29,6 +28,7 @@ function highlight(word, rack) {
       r += rack[i];
     }
   }
+  if (r == '') { return '<b style = "color:red">' + word + '</b>'};
   for (var i in word) {
     if (r.search(word[i]) == -1) {
       w += '<b style = "color:red">' + word[i] + '</b>';
@@ -36,6 +36,7 @@ function highlight(word, rack) {
       w += word[i];
     }
   }
+  console.log(w)
   return w;
 }
 
@@ -52,40 +53,39 @@ function tooMany() {
     var t = d3.select(this)
     if (t.selectAll('.words').empty()) {
       var k = t.select('div b').datum().key
-      sum -= k;
+      sum -= (k - 5);
       checker.splice( checker.indexOf(k), 1)
       t.remove();
     }
   })
   graph.selectAll('.cols')
-    .style('width',function(d){return checker.length > 11 ? null : (Number(d.key) - 5) * 100 / sum + '%'})
-    .style('margin-right',function(d){return checker.length > 11 ? (Number(d.key) - 5) / 2 + 'px' : null})
+    .style('width',function(d){return checker.length >= 11 ? null : Number(d.key) * 100 / (sum + 5 * checker.length)+ '%'})
+    .style('margin-right',function(d){return checker.length >= 11 ? (Number(d.key) - 5) / 2 + 'px' : null})
 }
 
 function graphFilter() {
-  var words = graph.selectAll('.words').style('display', function(d) { 
+  d3.selectAll('.words').style('display', function(d) {
     var ds = d.slice(d.length - 5, d.length).split('')
     for (var i in alias) {
       if (alias[i] == 1 && ds[i] == 1)  {
         wordsum += 1;
-        return '';
+        return null;
       }
     }
     return 'none';
   })
-  wordcount();
 }
 
 function filter() {
-  var words = graph.selectAll('.words').style('display', function(d) {
-    var ds = d.slice(d.length - 5, d.length).split('')
+  d3.selectAll('.words').style('display',function(d) { 
+    var t = d3.select(this),
+      ds = d.slice(d.length - 5, d.length).split('')
     for (var i in alias) {
       if (alias[i] == 1 && ds[i] == 1)  {
-        if (d3.select(this).style('display') == 'none') { wordsum += 1; }
-        return '';
+        wordsum += 1;
+        return null;
       }
     }
-    if (d3.select(this).style('display') != 'none') { wordsum -= 1; }
     return 'none';
   })
   wordcount();
@@ -104,9 +104,7 @@ function wordgen(dict, rack) {
   var ld = dict[0].length,
     l = rack.length
   checker.push(ld)
-  sum += ld;
-  wordsum = 0;
-  graph.select('#l' + ld).remove();
+  sum += (ld - 5);
 
   var action = starCheck(rack);
 
@@ -116,29 +114,33 @@ function wordgen(dict, rack) {
     .datum({key:ld})
 
   col.append('div')
-    .datum(ld)
     .append('b')
-    .text(function(d) { return d - 5})
+    .text(function(d) { return d.key - 5;})
   
+  var k = 0;
+  for (var i in rack) {
+    if (rack[i] == '*') k += 1;
+  }
   dict.forEach(function(v){
-    var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
-    k = 0;
+    var r = rack.split(''), w = v.slice(0, v.length - 5).split(''),
+    j = 0;
     while (w.length > 0) {
-      if ( r.indexOf(w[0]) != -1 ) {
-        var i = r.indexOf( w.shift() );
-        r.splice( i, 1 );
-      } else {break}
+      if (r.indexOf(w[0]) != -1 ) {
+        r.splice( r.indexOf(w.shift()), 1 );
+      } else {
+        if (j < k) { 
+          j += 1; 
+          r.splice( r.indexOf(w.shift()), 1 );
+        } else {break};
+      }
       if ( w.length == 0 ) { 
-        col.append('div')
+        col.append('p')
           .datum(v)
-          .append('p')
           .attr('class', 'words')
           .html(function(d) { return action(d, rack)})
       }
     }
   })
-  tooMany();
-  graphFilter();
 }
 
 function makeWords(set, va) {
@@ -151,45 +153,50 @@ function makeWords(set, va) {
     .attr('class', 'cols')
     .append('div')
     .append('b')
-    .text(function(d) { var k = Number(d.key);checker.push(k);sum += k; return k - 5})
+    .text(function(d) { var k = Number(d.key) - 5;checker.push(k);sum += k; return k})
 
   coldat.exit()
     .each(function(d) {
       var k = Number(d.key);
       checker.splice( checker.indexOf(k), 1 );
-      sum -= 0;
+      sum -= (k - 5);
     })
     .remove();
     
   graph.selectAll('.cols').each(function(d) {
-    var wordat = d3.select(this).selectAll('p').data(function(d) { return d.value})
+    var words = d3.select(this).selectAll('p')
+      .html(function(d) { return action(d, va);})
+      
+    var wordat = words.data(function(d) { return d.value})
       
     wordat.enter().append('p')
       .attr('class', 'words')
       .html(function(d) {return action(d, va); })
 
     wordat.exit()
+      .each(function(d) { wordsum -= 1;})
       .remove();
-
-    d3.select(this).selectAll('p')
-      .html(function(d) { return action(d, va);})
   })
+  graphFilter();
 } 
 
 function words(set, va) {
+  wordsum = 0;
   makeWords(set, va);
   tooMany();
-  graphFilter();
+  wordcount();
 }
 var alph = 'abcdefghijklmnopqrstuvwxyz*'
 alph = alph.split('')
 
 input.on('change', function() {
+  var start = new Date();
   d3.select('#message').html(null)
   var va = this.value,
     nv = '';
   if (va.length > 35) {
-   d3.select('#message') .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
+    d3.select('#message') 
+    .html(function() {return "<p class = 'message'>Whoa, <i>woa</i>! I can't do  " + va.length + " characters. I can only do 35. Doctor's orders.</p>"})
   return;
   }
   for(var i in va){
@@ -202,15 +209,18 @@ input.on('change', function() {
     if (anaCheck(k, nv)) {
       sum = 0;
       checker = [];
+      wordsum = 0;
       graph.selectAll('.cols').remove();
       for (var j in oldWords[k]) {
         wordgen(oldWords[k][j], va);
       }
+      filter();
       tooMany();
       return;
     }
   }
   d3.json(v, function(e, j) {
+    console.log(new Date() - start)
     if (e) console.log(e);
     words(j, nv)
     oldWords[nv] = j;
@@ -297,5 +307,6 @@ d.on('click', function(d) {
     }
   })
   alias = code;
+  wordsum = 0;
   filter();
 })

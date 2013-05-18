@@ -40,8 +40,21 @@ function words(rack, res) {
   var l = rack.length,
     words = {},
     count = 0,
-    j = 0
-
+    j = 0,
+    stars = 0,
+    start = 7;
+  
+  for (var i in rack) {
+    if (rack[i] == '*') {
+      stars += 1;
+      if (dict[stars + 5]) {
+        start = stars + 1;
+        words[stars + 5] = dict[stars + 5];
+        count += 1;
+      }
+    }
+  }
+  if (count == l - 1) {res.send(words); return};
   function tattle(d) {
     if (d[0]) {
       words[d[0].length] = d;
@@ -50,14 +63,14 @@ function words(rack, res) {
     if (count == l - 1) {res.send(words);}
   }
 
-  for (var i = 7; i <= l + 5;i++) {
+  for (var i = start; i <= l + 5;i++) {
     if (!dict[i]) {count ++; continue;}
     var c = child[j];
     c.on('message', function(d) {
       tattle(d);
     })
     j = j < 25 ? j + 1 : 0; 
-    c.send([rack, dict[i]]) 
+    c.send([rack, i]) 
   }
 }
 
