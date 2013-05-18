@@ -28,10 +28,10 @@ function highlight(word, rack) {
       r += rack[i];
     }
   }
-  if (r == '') { return '<b style = "color:red">' + word + '</b>'};
+  if (r == '') { return '<span style = "color:red; font-weight:900;">' + word + '</span>'};
   for (var i in word) {
     if (r.search(word[i]) == -1) {
-      w += '<b style = "color:red">' + word[i] + '</b>';
+      w += '<span style = "color:red; font-weight:900;">' + word[i] + '</span>';
     } else {
       w += word[i];
     }
