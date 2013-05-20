@@ -1,10 +1,6 @@
-var Mdict = require('./masterDict');
 process.on('message', function(ar){
-  var a1 = ar[1], dict = Mdict[a1], rack = ar[0];
-  var l = rack.length,
-    j = 0;
-  for ( var i = 0; i<l; i++ ) { if ( rack[i] == '*' ) {j++} };
-  if (a1 <= j){ process.send(dict); return;}
+  var dict = ar[1], rack = ar[0], j = ar[2];
+  var l = rack.length
   var p = [];
   dict.forEach(function(v){
     var r = rack.split(''), w = v.slice(0, v.length - 5).split('')

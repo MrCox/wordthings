@@ -8,7 +8,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -70,7 +70,7 @@ function words(rack, res) {
       tattle(d);
     })
     j = j < 25 ? j + 1 : 0; 
-    c.send([rack, i]) 
+    c.send([rack, dict[i], stars]) 
   }
 }
 
