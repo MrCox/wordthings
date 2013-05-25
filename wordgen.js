@@ -19,7 +19,7 @@ process.on('message', function(ar){
         else { 
           if (k<j) { w.shift(); k++ }
           else if (k==j) {break}
-          }
+        }
         if ( w.length == 0 ) { 
           p.push(v)
         }

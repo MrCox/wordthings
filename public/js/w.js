@@ -3,7 +3,6 @@ var input = d3.select('#solver'),
   dictDiv = d3.select('#dicts'),
   checker = [],
   sum = 0,
-  wordsum = 0,
   alias = [1, 1, 1, 1, 1]
 
 oldWords = {};
@@ -49,6 +48,7 @@ function highlight(word, rack) {
 }
 
 function wordcount() {
+  var wordsum = d3.selectAll('.words')[0].length;
   if (wordsum > 0) {
     d3.select('#wordcount')
       .select('i')
@@ -76,7 +76,6 @@ function graphFilter() {
     var ds = d.slice(d.length - 5, d.length).split('')
     for (var i in alias) {
       if (alias[i] == 1 && ds[i] == 1)  {
-        wordsum += 1;
         return null;
       }
     }
@@ -91,7 +90,6 @@ function filter() {
       ds = d.slice(d.length - 5, d.length).split('')
     for (var i in alias) {
       if (alias[i] == 1 && ds[i] == 1)  {
-        wordsum += 1;
         return null;
       }
     }
@@ -183,15 +181,12 @@ function makeWords(set, va) {
       .attr('class', 'words')
       .html(function(d) {return action(d, va); })
 
-    var e = wordat.exit()
-    wordsum -= e[0].length;
-    e.remove();
+    var e = wordat.exit().remove();
   })
   graphFilter();
 } 
 
 function words(set, va) {
-  wordsum = 0;
   makeWords(set, va);
   tooMany();
 }
@@ -218,7 +213,6 @@ input.on('change', function() {
     if (anaCheck(k, nv)) {
       sum = 0;
       checker = [];
-      wordsum = 0;
       graph.selectAll('.cols').remove();
       for (var j in oldWords[k]) {
         wordgen(oldWords[k][j], va);
@@ -315,6 +309,5 @@ d.on('click', function(d) {
     }
   })
   alias = code;
-  wordsum = 0;
   filter();
 })
