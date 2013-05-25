@@ -2,13 +2,11 @@ process.on('message', function(ar){
   var mdict = ar[1], rack = ar[0], j = ar[2]
   var l = rack.length
   var p = [],
-  unique = ''
+  unique = []
   for (var i in rack) {
-    if (unique.search(rack[i]) == -1){
-      unique += rack[i]
-    } else {
-      continue;
-    }
+    if (unique.indexOf(rack[i]) == -1){
+      unique.push(rack[i]);
+    } else { continue; }
     var dict = mdict[rack[i]]
     dict.forEach(function(v){
       var r = rack.split(''), w = v.slice(0, v.length - 5).split('')
