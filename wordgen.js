@@ -6,7 +6,7 @@ process.on('message', function(ar){
   for (var i in rack) {
     if (unique.indexOf(rack[i]) == -1){
       unique.push(rack[i]);
-    } else { continue; }
+    } else {continue }
     var dict = mdict[rack[i]]
     dict.forEach(function(v){
       var r = rack.split(''), w = v.slice(0, v.length - 5).split('')

@@ -8,7 +8,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -55,12 +55,12 @@ function words(rack, res) {
       }
     } else { arg += rack[i]}
   }
-  if (count == l - 1) {res.send(words); return};
+  if (count == l) {res.send(words); return};
   function tattle(d) {
     if (d[0]) {
       words[d[0].length] = d;
+      count += 1; 
     }
-    count += 1; 
     if (count == l - 1) {res.send(words);}
   }
 
