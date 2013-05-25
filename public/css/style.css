@@ -46,6 +46,10 @@ text {
   float: left;
 }
 
+#graph {
+  margin-bottom: 10%;
+}
+
 .sortchild {
   margin-top: 5%;
 }

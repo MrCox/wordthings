@@ -33,7 +33,7 @@ app.get('/', function(req, res) {
 })
 
 var child = []
-for (var l = 0; l < 26; l ++) {
+for (var l = 0; l < 11; l ++) {
   child.push( cp.fork('./wordgen'))
 }
 function words(rack, res) {
@@ -69,7 +69,7 @@ function words(rack, res) {
     c.on('message', function(d) {
       tattle(d);
     })
-    j = j < 25 ? j + 1 : 0; 
+    j = j < 10 ? j + 1 : 0; 
     c.send([rack, dict[i], stars]) 
   }
 }

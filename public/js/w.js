@@ -7,7 +7,16 @@ var input = d3.select('#solver'),
   alias = [1, 1, 1, 1, 1]
 
 oldWords = {};
-
+/*x = function(s) {
+  var start = new Date()
+  var v = '/words?rack=' + s
+  d3.json(v, function(e, j) {
+    console.log(new Date() - start)
+    if (e) console.log(e);
+    words(j, s)
+    oldWords[s] = j;
+  })
+}*/
 function anaCheck(w1, w2) {
   var w = w1.split(''), r = w2.split('')
   while (r.length > 0) {
