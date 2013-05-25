@@ -82,6 +82,7 @@ function graphFilter() {
     }
     return 'none';
   })
+  wordcount();
 }
 
 function filter() {
@@ -173,17 +174,18 @@ function makeWords(set, va) {
     
   graph.selectAll('.cols').each(function(d) {
     var words = d3.select(this).selectAll('p')
-      .html(function(d) { return action(d, va);})
       
     var wordat = words.data(function(d) { return d.value})
-      
+    
+    wordat.html(function(d) { return action(d, va);})
+
     wordat.enter().append('p')
       .attr('class', 'words')
       .html(function(d) {return action(d, va); })
 
-    wordat.exit()
-      .each(function(d) { wordsum -= 1;})
-      .remove();
+    var e = wordat.exit()
+    wordsum -= e[0].length;
+    e.remove();
   })
   graphFilter();
 } 
@@ -192,7 +194,6 @@ function words(set, va) {
   wordsum = 0;
   makeWords(set, va);
   tooMany();
-  wordcount();
 }
 var alph = 'abcdefghijklmnopqrstuvwxyz*'
 alph = alph.split('')
