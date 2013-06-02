@@ -219,6 +219,7 @@ input.on('change', function() {
       nv += va[i];
     }
  }
+  console.log(nv);
   var v = '/words?rack=' + nv;
   for (var k in oldWords) {
     if (anaCheck(k, nv)) {
@@ -266,8 +267,8 @@ function change(t) {
 }
 
 d3.select('#sorting').selectAll('label').on('click', function(d) {
-  var t = this, 
-    td = d3.select(t),
+  var t = this; 
+  var td = d3.select(t),
     tdh = td.html(),
     sl = tdh.slice(tdh.length - 12, tdh.length),
     ls = tdh.slice(tdh.length - 20, tdh.length),

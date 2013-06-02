@@ -59,8 +59,8 @@ function words(rack, res) {
   function tattle(d) {
     if (d[0]) {
       words[d[0].length] = d;
-      count += 1; 
     }
+    count += 1; 
     if (count == l - 1) {res.send(words);}
   }
 
@@ -74,6 +74,10 @@ function words(rack, res) {
     c.send([arg, dict[i], stars]) 
   }
 }
+
+app.get('/robots.txt', function( req, res) {
+  res.sendfile('./robots.txt')
+})
 
 app.get('/words', function(req, res) {
   if (req.query.rack.length <= 35) {
