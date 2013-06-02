@@ -68,7 +68,8 @@ function tooMany() {
   })
   graph.selectAll('.cols')
     .style('width',function(d){return checker.length >= 11 ? null : Number(d.key) * 100 / (sum + 5 * checker.length)+ '%'})
-    .style('margin-right',function(d){return checker.length >= 10 ? (Number(d.key) - 5) / 2 + 'px' : null})
+    .style('margin-right',function(d){return checker.length >= 10 ? Number(d.key) / 4 + 'px' : null})
+    .style('margin-left', function(d){return checker.length >= 10 ? Number(d.key) / 4 + 'px' : null})
 }
 
 function graphFilter() {
@@ -153,7 +154,17 @@ function wordgen(dict, rack) {
 function makeWords(set, va) {
   var action = starCheck(va)
 
-  var coldat = graph.selectAll('.cols').data(d3.entries(set))
+  var coldat = graph.selectAll('.cols')
+    .data(d3.entries(set))
+
+  //TODO: centralize both checker and sum (make one function that finds both).
+  //TODO: make checker the data for d3.iserting <b>_length of word_</b> under each col 
+
+  coldat.select('div b').text(function(d) { 
+    //var k = Number(d.key) - 5; 
+    //checker.push(k))
+    return Number(d.key) - 5;
+  })
 
   coldat.enter().append('div')
     .attr('id', function(d) { return 'l' + d.key })
@@ -265,16 +276,16 @@ d3.select('#sorting').selectAll('label').on('click', function(d) {
   if (sl == 'alphabetical') {
     td.html('<input type="radio" UNCHECKED>reverse alphabetical')
     d3.selectAll('.cols').each(function() { 
-      var d = d3.select(this).selectAll('.words')
-      d[0].reverse();
-      d.order();
+      d3.select(this).selectAll('.words')
+        .sort(d3.ascending)
     })
   } 
   if (ls == 'reverse alphabetical'){
     td.html('<input type="radio" CHECKED> alphabetical')
     d3.selectAll('.cols').each(function() { 
-      var e = d3.select(this).selectAll('.words'),
-      n = [],
+      var e = d3.select(this).selectAll('.words')
+        .sort(d3.descending)
+/*      n = [],
       el = e[0].length;
       e[0].forEach(function(d,i) {
         n[el - 1 - i] = d
@@ -282,7 +293,7 @@ d3.select('#sorting').selectAll('label').on('click', function(d) {
       for (var i; i< el - 1; i++) {
         e[0][i] = n[i]
       }
-      e.order();
+      e.order(); */
     })
   }
   if (st == 'ascending') {
