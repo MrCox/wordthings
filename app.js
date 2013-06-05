@@ -3,12 +3,12 @@ var express = require('express'),
   http = require('http'),
   fs = require('fs'),
   dict = require('./masterDict'),
-  cp = require('child_process')
+  cp = require('child_process');
 
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -33,12 +33,21 @@ app.get('/', function(req, res) {
 })
 
 var child = []
-for (var l = 0; l < 11; l ++) {
+for (var l = 0; l <= 25; l ++) {
   child.push( cp.fork('./wordgen'))
 }
+
+function merger(obj) {
+  var a = [];
+  for (var i in obj) {
+    for (var j in obj[i]) {
+      a.push(obj[i][j])
+    }
+  }
+  return a;
+}
 function words(rack, res) {
-  var l = rack.length,
-    words = {},
+  var words = {},
     count = 0,
     j = 0,
     stars = 0,
@@ -48,14 +57,15 @@ function words(rack, res) {
   for (var i in rack) {
     if (rack[i] == '*') {
       stars += 1;
-      if (dict[stars + 5]) {
-        start = stars + 1;
-        words[stars + 5] = dict[stars + 5];
+      if (stars >= 2) {
+        start = stars + 7;
+        words[stars + 5] = merger(dict[stars + 5]);
         count += 1;
       }
     } else { arg += rack[i]}
   }
-  if (count == l) {res.send(words); return};
+  var l = arg.length + stars;
+  if (count == l - 1) {res.send(words); return};
   function tattle(d) {
     if (d[0]) {
       words[d[0].length] = d;
@@ -65,12 +75,12 @@ function words(rack, res) {
   }
 
   for (var i = start; i <= l + 5;i++) {
-    if (!dict[i]) {count ++; continue;}
+    if (!dict[i]) { count++; continue;}
+    j = j < 25 ? j + 1 : 0; 
     var c = child[j];
     c.on('message', function(d) {
       tattle(d);
     })
-    j = j < 10 ? j + 1 : 0; 
     c.send([arg, dict[i], stars]) 
   }
 }
