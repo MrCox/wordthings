@@ -116,7 +116,9 @@ function highlight(word, rack) {
 }
 
 function wordcount() {
-  var wordsum = d3.selectAll('.words')[0].length;
+  var wordsum = d3.selectAll('.words')
+    .filter(function(d) { return d3.select(this)
+    .style('display') != 'none'})[0].length
   if (wordsum > 0) {
     d3.select('#wordcount')
       .select('i')
@@ -139,10 +141,12 @@ function tooMany() {
   })
   if (total < 10) {
     graph.selectAll('.cols')
+      .style('margin-right', null)
       .style('width', function(d) { return +d.key * 100 / sum + '%'})
   } else {
     graph.selectAll('.cols')
-      .style('margin-right', function(d) { return +d.key * 100 /(2* sum) + "%"})
+      .style('width', null)
+      .style('margin-right', function(d) { return +d.key * 100 /(3 * sum) + "%"})
   }
 }
 
