@@ -15,7 +15,12 @@ html
     div.row
       div.small-8.small-centered.columns(style='margin-top:10%;')
         div#counter.small-12.small-centered.columns
-        input#solver(type='text', placeholder='put anagram here')
+        div.small-12.small-centered.columns
+          div.small-10.columns
+            input#solver(type='text', placeholder='put anagram here')
+          div.small-2.columns
+            a#solveButton.tiny.round.secondary.button(style = 'margin-top:2.5%; background-color: GhostWhite;')
+              i unscramble
         div#dicts.small-12.columns
           div.dict(style = 'float: left;margin-right:3.5%;')
             <i>dictionaries: <i>
@@ -39,10 +44,10 @@ html
             div.sortchild
               <i>sorting:</i>
           div.sort
-            a.tiny.secondary.round.button.sortchild(style='float:left;margin-top:2.5%;')
+            a.tiny.secondary.round.button.sortchild(style='float:left;margin-top:2.5%;background-color:GhostWhite;')
               i alphabetical
           div.sort
-            a.tiny.secondary.round.button.sortchild(style='float:left;margin-top:2.5%;')
+            a.tiny.secondary.round.button.sortchild(style='float:left;margin-top:2.5%;background-color:GhostWhite;')
               i ascending
         div#message.small-12.small-centered.columns
         div#wordcount.small-12.columns

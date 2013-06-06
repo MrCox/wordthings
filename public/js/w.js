@@ -275,7 +275,7 @@ function message(va) {
 var alph = 'abcdefghijklmnopqrstuvwxyz*'
 alph = alph.split('')
 
-input.on('change', function() {
+function Solver() {
   d3.select('#message').html(null)
   var va = this.value,
     nv = '';
@@ -305,9 +305,11 @@ input.on('change', function() {
     words(j, nv)
     oldWords[nv] = j;
   })
-}).on('keyup', function() {
+}
+input.on('change', Solver)
+.on('keyup', function() {
   d3.select('#counter')
+    .style('margin-left', '5%')
     .text(this.value.length)
     .attr('class', 'message')
 })
-
