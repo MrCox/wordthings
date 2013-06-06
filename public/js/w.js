@@ -38,6 +38,37 @@ function change(t) {
   }
 }
 
+function Sorter() {
+  d3.select('#sorting').selectAll('a')
+    .each(function(d, i) {
+      var des = d3.select(this).text();
+      if (i == 0) {
+        if (des == 'alphabetical') {
+          return;
+        } else {
+          var words = d3.selectAll('.cols').selectAll('.words')
+          words[0].reverse();
+          words.order();
+        }
+      } else {
+          var cols = d3.selectAll('.cols')
+        if (des == 'ascending') {
+          cols.sort(function(a, b) {
+            a = +a.key;
+            b = +b.key;
+            return a < b ? -1 : a > b ? 1 : 0;
+          })
+        } else {
+          cols.sort(function(a, b) {
+            a = +a.key;
+            b = +b.key;
+            return a > b ? -1 : a < b ? 1 : 0;
+          })
+        }
+      }
+    })
+}
+
 s.on('click', function(d) {
   var td = d3.select(this),
     sl = td.text();
@@ -150,19 +181,6 @@ function tooMany() {
   }
 }
 
-function graphFilter() {
-  d3.selectAll('.words').style('display', function(d) {
-    var ds = d.slice(d.length - 5, d.length).split('')
-    for (var i in alias) {
-      if (alias[i] == 1 && ds[i] == 1)  {
-        return null;
-      }
-    }
-    return 'none';
-  })
-  wordcount();
-}
-
 function filter() {
   d3.selectAll('.words').style('display',function(d) { 
     var t = d3.select(this),
@@ -175,6 +193,7 @@ function filter() {
     return 'none';
   })
   wordcount();
+  Sorter();
 }
 
 function starCheck(rack) {
@@ -226,7 +245,6 @@ function wordgen(dict, rack) {
     }
   })
 }
-
 function makeWords(set, va) {
   var action = starCheck(va)
 
@@ -259,12 +277,12 @@ function makeWords(set, va) {
 
     var e = wordat.exit().remove();
   })
-  graphFilter();
 } 
 
 function words(set, va) {
   makeWords(set, va);
   tooMany();
+  filter();
 }
 
 function message(va) {
@@ -288,20 +306,25 @@ function Solver() {
       nv += va[i];
     }
  }
-  var v = '/words?rack=' + nv;
   for (var k in oldWords) {
     if (anaCheck(k, nv)) {
       graph.selectAll('.cols').remove();
       for (var j in oldWords[k]) {
         wordgen(oldWords[k][j], va);
       }
+      //TODO: combine filter(), tooMany(), Sorter(), and wordCount() into one post-render function
       filter();
       tooMany();
       return;
     }
   }
+  var v = '/words?rack=' + nv;
   d3.json(v, function(e, j) {
     if (e) console.log(e);
+    if(d3.entries(j).length == 0) {
+      d3.select('#message').html('<p class ="message">No anagrams found.</p>')
+      return;
+    }
     words(j, nv)
     oldWords[nv] = j;
   })
