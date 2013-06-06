@@ -44,11 +44,15 @@ function Sorter() {
       var des = d3.select(this).text();
       if (i == 0) {
         if (des == 'alphabetical') {
-          return;
+          d3.selectAll('.cols').selectAll('.words')
+            .sort(function(a, b) {
+              return a > b ? 1 : a < b ? -1 : 0
+            })
         } else {
-          var words = d3.selectAll('.cols').selectAll('.words')
-          words[0].reverse();
-          words.order();
+          d3.selectAll('.cols').selectAll('.words')
+            .sort(function(a, b) {
+              return a < b ? 1 : a > b ? -1 : 0
+            })
         }
       } else {
           var cols = d3.selectAll('.cols')
@@ -75,15 +79,17 @@ s.on('click', function(d) {
   if (sl == 'alphabetical') {
     td.text('reverse alphabetical')
     d3.selectAll('.cols').each(function() { 
-      d3.select(this).selectAll('.words')
-        .sort(d3.ascending)
+      var e = d3.select(this).selectAll('.words')
+      e[0].reverse();
+      e.order();
     })
   } 
   if (sl == 'reverse alphabetical'){
     td.text('alphabetical')
     d3.selectAll('.cols').each(function() { 
       var e = d3.select(this).selectAll('.words')
-        .sort(d3.descending)
+      e[0].reverse()
+      e.order();
     })
   }
   if (sl == 'ascending') {

@@ -3,7 +3,6 @@ process.on('message', function(ar){
   var l = rack.length
   var p = [],
   unique = []
-  rack = rack.split('').sort(function(a, b) { return a < b ? -1 : a > b ? 1 : 0}).join('');
   for (var i in rack) {
     if (unique.indexOf(rack[i]) == -1){
       unique.push(rack[i]);
@@ -26,5 +25,5 @@ process.on('message', function(ar){
       })
     }
   }
-  process.send(p)
+  process.send(p);
 })
