@@ -3,7 +3,8 @@ var input = d3.select('#solver'),
   dictDiv = d3.select('#dicts'),
   alias = [1, 1, 1, 1, 1],
   faqDiv = d3.select('#faqDiv'),
-  faq = d3.select('#faq');
+  faq = d3.select('#faq'),
+  rawSort = false;
 
 faq.on('click', function() { 
   var faq = d3.select(this),
@@ -38,44 +39,10 @@ function change(t) {
   }
 }
 
-function Sorter() {
-  d3.select('#sorting').selectAll('a')
-    .each(function(d, i) {
-      var des = d3.select(this).text();
-      if (i == 0) {
-        if (des == 'alphabetical') {
-          d3.selectAll('.cols').selectAll('.words')
-            .sort(function(a, b) {
-              return a > b ? 1 : a < b ? -1 : 0
-            })
-        } else {
-          d3.selectAll('.cols').selectAll('.words')
-            .sort(function(a, b) {
-              return a < b ? 1 : a > b ? -1 : 0
-            })
-        }
-      } else {
-          var cols = d3.selectAll('.cols')
-        if (des == 'ascending') {
-          cols.sort(function(a, b) {
-            a = +a.key;
-            b = +b.key;
-            return a < b ? -1 : a > b ? 1 : 0;
-          })
-        } else {
-          cols.sort(function(a, b) {
-            a = +a.key;
-            b = +b.key;
-            return a > b ? -1 : a < b ? 1 : 0;
-          })
-        }
-      }
-    })
-}
-
 s.on('click', function(d) {
   var td = d3.select(this),
     sl = td.text();
+
   if (sl == 'alphabetical') {
     td.text('reverse alphabetical')
     d3.selectAll('.cols').each(function() { 
@@ -83,6 +50,7 @@ s.on('click', function(d) {
       e[0].reverse();
       e.order();
     })
+    return;
   } 
   if (sl == 'reverse alphabetical'){
     td.text('alphabetical')
@@ -91,18 +59,31 @@ s.on('click', function(d) {
       e[0].reverse()
       e.order();
     })
+    return;
+  }
+  function check() {
+    if (rawSort == true) {
+      rawSort == false;
+      Sorter();
+      return true;
+    }
+    return false;
   }
   if (sl == 'ascending') {
     td.text('descending')
+    if (check() == true) {return};
     var d = d3.selectAll('.cols')
     d[0].reverse();
     d.order();
+    return;
   }
   if (sl == 'descending') {
     td.text('ascending')
+    if (check() == true) {return};
     var d = d3.selectAll('.cols');
     d[0].reverse();
     d.order();
+    return;
   }
 })
 
@@ -152,6 +133,76 @@ function highlight(word, rack) {
   return w;
 }
 
+function afterGraph() {
+  //TODO: Find a way to do all the following in one iteration.
+  
+  Sorter();
+  filter();
+  tooMany();
+  colLinks();
+  //wordcount();
+}
+
+function Sorter() {
+  var cols = d3.selectAll('.cols'),
+    des = d3.select(d3.select('#sorting').selectAll('a')[0][1]).text();
+    if (des == 'ascending') {
+      cols.sort(function(a, b) {
+        a = +a.key;
+        b = +b.key;
+        return a < b ? -1 : a > b ? 1 : 0;
+      })
+    } else {
+      cols.sort(function(a, b) {
+        a = +a.key;
+        b = +b.key;
+        return a > b ? -1 : a < b ? 1 : 0;
+      })
+    }
+}
+
+function colLinks() {
+  if (d3.selectAll('.cols')[0].length < 8) return;
+  var cl = d3.select('#colLinks')
+    .style('border-top','3px Solid GhostWhite')
+  if(cl.select('i').empty()) {
+    cl.insert('i', ':first-child')
+      .style('margin-right','2.5%')
+      .text('fetch by length:')
+  }
+  var cols = d3.selectAll('.cols').data().map(function(d) { return d.key});
+  var ldata = d3.select('#colLinks')
+    .selectAll('a')
+    .data(cols)
+
+  ldata.text(function(d){ return +d - 5});
+
+  ldata.enter()
+    .append('a')
+    .attr('class', 'tiny round secondary button')
+    .style('background-color', 'GhostWhite')
+    .style('margin-left', '2%')
+    .on('click', function(d) {
+      var s = d3.selectAll('.cols');
+      s.each(function(t, i) {
+        if (t.key == d) {
+          var n = graph.insert('div', ':first-child')
+            .datum(t)
+            .attr('id', function(d) { return 'l' + d.key})
+            .attr('class', 'cols')
+          n.append('b')
+            .text(function(d){ return +d.key - 5})
+          n.call(innerWords, '')
+          d3.select(this).remove();
+        } else { return; }
+      })
+      rawSort = true;
+    })
+    .text(function(d) { return +d - 5})
+  
+  ldata.exit().remove();
+}
+
 function wordcount() {
   var wordsum = d3.selectAll('.words')
     .filter(function(d) { return d3.select(this)
@@ -183,7 +234,8 @@ function tooMany() {
   } else {
     graph.selectAll('.cols')
       .style('width', null)
-      .style('margin-right', function(d) { return +d.key * 100 /(3 * sum) + "%"})
+      .style('margin-right', function(d) { return +d.key * 100 /(4 * sum) + "%"})
+      .style('margin-left', function(d) { return +d.key * 100 /(4 * sum) + "%" })
   }
 }
 
@@ -199,7 +251,6 @@ function filter() {
     return 'none';
   })
   wordcount();
-  Sorter();
 }
 
 function starCheck(rack) {
@@ -230,7 +281,10 @@ function wordgen(dict, rack) {
   for (var i in rack) {
     if (rack[i] == '*') k += 1;
   }
-  dict.forEach(function(v){
+  var f = d3.select('#sorting').select('a').text() == 'alphabetical'
+    ? d3.ascending
+    : d3.descending;
+  dict.sort(f).forEach(function(v){
     var r = rack.split(''), w = v.slice(0, v.length - 5).split(''),
     j = 0;
     while (w.length > 0) {
@@ -251,9 +305,31 @@ function wordgen(dict, rack) {
     }
   })
 }
-function makeWords(set, va) {
-  var action = starCheck(va)
 
+function innerWords(_, va) {
+  var f = d3.select('#sorting').select('a').text() == 'alphabetical'
+    ? d3.ascending
+    : d3.descending;
+
+  var wordat = _.selectAll('p')
+    .data(function(d) { 
+      return d.value.sort(f)
+    })
+    
+  wordat.html(function(d) { return starCheck(va)(d, va);})
+
+  wordat.enter().append('p')
+    .attr('class', 'words')
+    .html(function(d) {return starCheck(va)(d, va); })
+
+  var e = wordat
+    .exit()
+    .remove();
+
+  return _.selectAll('p')
+}
+
+function makeWords(set, va) {
   var coldat = graph.selectAll('.cols')
     .data(d3.entries(set))
 
@@ -272,23 +348,13 @@ function makeWords(set, va) {
     .remove();
     
   graph.selectAll('.cols').each(function(d) {
-    var wordat = d3.select(this).selectAll('p')
-      .data(function(d) { return d.value})
-      
-    wordat.html(function(d) { return action(d, va);})
-
-    wordat.enter().append('p')
-      .attr('class', 'words')
-      .html(function(d) {return action(d, va); })
-
-    var e = wordat.exit().remove();
+    d3.select(this).call(innerWords, va);
   })
 } 
 
 function words(set, va) {
   makeWords(set, va);
-  tooMany();
-  filter();
+  afterGraph();
 }
 
 function message(va) {
@@ -318,9 +384,7 @@ function Solver() {
       for (var j in oldWords[k]) {
         wordgen(oldWords[k][j], va);
       }
-      //TODO: combine filter(), tooMany(), Sorter(), and wordCount() into one post-render function
-      filter();
-      tooMany();
+      afterGraph();
       return;
     }
   }
