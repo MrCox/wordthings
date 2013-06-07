@@ -140,7 +140,7 @@ function afterGraph() {
   filter();
   tooMany();
   colLinks();
-  //wordcount();
+  wordcount();
 }
 
 function Sorter() {
@@ -160,9 +160,14 @@ function Sorter() {
       })
     }
 }
-
+var long_enough = false;
 function colLinks() {
-  if (d3.selectAll('.cols')[0].length < 8) return;
+  if (d3.selectAll('.cols')[0].length > 9) {
+    long_enough = true;
+  }
+  if (long_enough != true) {
+    return;
+  }
   var cl = d3.select('#colLinks')
     .style('border-top','3px Solid GhostWhite')
   if(cl.select('i').empty()) {
@@ -205,9 +210,8 @@ function colLinks() {
 
 function wordcount() {
   var wordsum = d3.selectAll('.words')
-    .filter(function(d) { return d3.select(this)
-    .style('display') != 'none'})[0].length
-  if (wordsum > 0) {
+    .filter(function(d) { return d3.select(this).style('display') != 'none'})[0].length
+  if (wordsum >= 0) {
     d3.select('#wordcount')
       .select('i')
       .html(function(d) { return wordsum + ' results'})
@@ -367,7 +371,7 @@ alph = alph.split('')
 
 function Solver() {
   d3.select('#message').html(null)
-  var va = this.value,
+  var va = this.value.toLowerCase(),
     nv = '';
   if (va.length > 35) {
     message(va);
@@ -393,6 +397,7 @@ function Solver() {
     if (e) console.log(e);
     if(d3.entries(j).length == 0) {
       d3.select('#message').html('<p class ="message">No anagrams found.</p>')
+      wordcount();
       return;
     }
     words(j, nv)
