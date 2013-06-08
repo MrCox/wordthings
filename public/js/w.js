@@ -6,18 +6,6 @@ var input = d3.select('#solver'),
   faq = d3.select('#faq'),
   rawSort = false;
 
-faq.on('click', function() { 
-  var faq = d3.select(this),
-    m = faq.text()
-  if (m == 'faq') {
-    faq.text('hide faq')
-    faqDiv.style('display', null);
-  } else{
-    faq.text('faq')
-    faqDiv.style('display', 'none');
-  }
-})
-
 oldWords = {};
 
 // dealing with buttons 
@@ -99,6 +87,17 @@ d.on('click', function(d) {
   })
   alias = code;
   filter();
+})
+faq.on('click', function() { 
+  var faq = d3.select(this),
+    m = faq.text()
+  if (m == 'faq') {
+    faq.text('hide faq')
+    faqDiv.style('display', null);
+  } else{
+    faq.text('faq')
+    faqDiv.style('display', 'none');
+  }
 })
 
 // solving anagrams
@@ -195,6 +194,7 @@ function colLinks() {
             .datum(t)
             .attr('id', function(d) { return 'l' + d.key})
             .attr('class', 'cols')
+            .style('margin-rigth', '2%')
           n.append('b')
             .text(function(d){ return +d.key - 5})
           n.call(innerWords, '')
@@ -219,28 +219,19 @@ function wordcount() {
 }
 
 function tooMany() {
-  var total = 0,
-    sum = 0;
+  var sum = 0;
   graph.selectAll('.cols').each(function(d) { 
     var t = d3.select(this)
     if (t.selectAll('.words').empty()) {
       t.remove();
       return;
     }
-    total += 1;
     sum += Number(d.key);
     return;
   })
-  if (total < 10) {
-    graph.selectAll('.cols')
-      .style('margin-right', null)
-      .style('width', function(d) { return +d.key * 100 / sum + '%'})
-  } else {
-    graph.selectAll('.cols')
-      .style('width', null)
-      .style('margin-right', function(d) { return +d.key * 100 /(4 * sum) + "%"})
-      .style('margin-left', function(d) { return +d.key * 100 /(4 * sum) + "%" })
-  }
+  graph.selectAll('.cols')
+    .style('margin-right', function(d) { return +d.key * 100 /(4 * sum) + "%"})
+    .style('margin-left', function(d) { return +d.key * 100 /(4 * sum) + "%" })
 }
 
 function filter() {
@@ -405,9 +396,9 @@ function Solver() {
   })
 }
 input.on('change', Solver)
-.on('keyup', function() {
-  d3.select('#counter')
-    .style('margin-left', '5%')
-    .text(this.value.length)
-    .attr('class', 'message')
+  .on('keyup', function() {
+    d3.select('#counter')
+      .style('margin-left', '5%')
+      .text(this.value.length)
+      .attr('class', 'message')
 })

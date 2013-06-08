@@ -64,6 +64,10 @@ text {
   height:10px;
 }
 
+.faq {
+  margin: 4%;
+}
+
 #solver {
   border: 1px solid #33add6;
 }

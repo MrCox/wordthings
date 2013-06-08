@@ -54,13 +54,18 @@ html
         div#wordcount.small-12.columns
           i
       div#graph.small-8.small-centered.columns
-        script(src = '/public/js/w.js')
     div.row
-      div#faq.small-7.small-centered.columns(style = 'color: #4d4d4d;/*border-top:3px solid GhostWhite;*/')
-        p(style='margin-bottom:2%;') It will solve your anagram, it will unscramble your word jumble. It uses official dictionaries accepted in Scrabble, Words with Friends, and other word games.
-        p Results are arranged in easy-to-scan vertical columns. 
-        p Select dictionaries, sort results, or make new searches without reloading the page. 
-        p(style = 'margin-bottom:2%;') Enter racks up to 35 characters in length. Denote wildcards with '*'.
-        p The anagram-solver started small, but it is growing-- at this very moment, expanding.
-        p Like the universe.
-        p As such, features are being added that will enhance not only its convenience, but its velocity toward heat-death.
+      div.small-6.small-centered.columns
+        i#faq(style='color:#e6e6e6;cursor:pointer;font-size:130%;font-weight:600;') faq
+      div.small-7.small-centered.columns(style='color:#4d4d4d;border:3px solid GhostWhite;')
+        div#faqDiv.small-12.columns
+          p.faq It will solve your anagram, unscramble your word jumble puzzle, untoss your word-salad. 
+          p.faq Select among the official dictionaries of Scrabble, Words with Friends, and other word games.
+          p.faq Switch dictionaries, sort results, or make new searches without reloading the page. 
+          p.faq Results are arranged in easy-to-scan vertical columns. 
+          p.faq Enter racks up to 35 characters in length. Denote wildcards with '*'.
+          p.faq The anagram-solver started small, but it is growing-- at this very moment, expanding.
+          p.faq Like the universe.
+          p.faq As such, features are being added that will enhance not only its convenience, but its progress toward inevitable heat-death.
+    div.row
+      script(src = '/public/js/w.js')
