@@ -8,7 +8,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -31,6 +31,19 @@ app.get('/', function(req, res) {
       if (e) throw e;
     })
 })
+
+app.get('/heyKara', function(req, res) {
+  res.render('sandbox.jade', {pageTitle: 'sandbox'})
+})
+
+app.get('/anagramsolver', function(req, res) {
+    res.render('layout.jade', {pageTitle: 'wordthings' })
+    k += 1;
+    fs.appendFile('./anacount.js', ', ' + k, function(e) {
+      if (e) throw e;
+    })
+})
+
 
 var child = []
 for (var l = 0; l <= 25; l ++) {
@@ -68,7 +81,7 @@ function words(rack, res) {
   if (count == l - 1) {res.send(words); return};
   function tattle(d) {
     if (d[0]) {
-      words[d[0].length] = d;
+      words[d[0].length] = d
     }
     count += 1; 
     if (count == l - 1) {res.send(words);}
