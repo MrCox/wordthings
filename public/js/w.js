@@ -6,6 +6,7 @@ var input = d3.select('#solver'),
   faq = d3.select('#faq'),
   rawSort = false;
 
+faqDiv.style('display', 'none')
 oldWords = {};
 
 // dealing with buttons 

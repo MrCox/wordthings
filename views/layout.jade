@@ -1,7 +1,7 @@
 !!! 5
 html
   head
-    title = pageTitle
+    title Anagram Solver and Maker
     meta(name = 'description', content = 'Anagram solver')
     meta(name = 'keywords', content = 'anagram, solver, jumble, word, words, wordthings, unscramble, scrabble, words with friends, game, cheat, unscrambler, unjumble, dictionary, sowpods, d3, enable, twl06, owl, ospd4, solve, puzzle, word tools, generator')
     script(src = '/public/d3.min.js')
@@ -12,6 +12,18 @@ html
     div.row
       div.small-12.small-centered.columns(style = 'margin-top: 5%;border-bottom: 3px solid GhostWhite;text-align:center;')
         h3(style = 'color: #4d4d4d') A convenient anagram solver.
+    div.row#about
+      div.small-6.small-centered.columns
+        i#faq(style='color:#e6e6e6;cursor:pointer;font-size:130%;font-weight:600;') faq 
+      div.small-7.small-centered.columns(style='color:#4d4d4d;border:3px solid GhostWhite;height:100%;')
+        div#faqDiv.small-12.columns(style = 'text-align:left;display:none;')
+          p.faq It will solve your anagram, unscramble your word jumble, untoss your wordsalad. 
+          p.faq Select among the official dictionaries of Scrabble, Words with Friends, and other word games.
+          p.faq Results are arranged in easy-to-scan vertical columns. Switch dictionaries, sort results, or make new searches without reloading the page. 
+          p.faq Enter racks up to 35 characters in length. Denote wildcards with '*'.
+          p.faq The anagram-solver started small, but it is growing-- at this very moment, expanding.
+          p.faq Like the universe.
+          p.faq As such, it will slowly gain features that enhance not only its convenience, but its progress toward inevitable heat-death.
     div.row
       div.small-8.small-centered.columns(style='margin-top:5%;')
         div#counter.small-12.small-centered.columns
@@ -55,17 +67,6 @@ html
           i
       div#graph.small-8.small-centered.columns
     div.row
-      div.small-6.small-centered.columns
-        i#faq(style='color:#e6e6e6;cursor:pointer;font-size:130%;font-weight:600;') faq
-      div.small-7.small-centered.columns(style='color:#4d4d4d;border:3px solid GhostWhite;')
-        div#faqDiv.small-12.columns
-          p.faq It will solve your anagram, unscramble your word jumble puzzle, untoss your word-salad. 
-          p.faq Select among the official dictionaries of Scrabble, Words with Friends, and other word games.
-          p.faq Switch dictionaries, sort results, or make new searches without reloading the page. 
-          p.faq Results are arranged in easy-to-scan vertical columns. 
-          p.faq Enter racks up to 35 characters in length. Denote wildcards with '*'.
-          p.faq The anagram-solver started small, but it is growing-- at this very moment, expanding.
-          p.faq Like the universe.
-          p.faq As such, features are being added that will enhance not only its convenience, but its progress toward inevitable heat-death.
-    div.row
       script(src = '/public/js/w.js')
+//      div.small-10.small-centered.columns(style = 'color:#4d4d4d; margin-top: 3%; border-top:3px solid GhostWhite;')
+//        Got suggestions? Email them to <b>wordsmith@wordthings.org</b>
