@@ -1,31 +1,41 @@
-#map { 
+#frame { 
+  overflow: hidden;
+}
+
+#panel { width: 25%;
+  border: solid 1px #85ffff;
+  display: inline-block;
+  background: #00001e;
   overflow: auto;
 }
 
+#innerpanel { width: 100%;
+  height: 100%;
+  display: inline-block;
+}
+
+#map { width: 75%;
+  display: inline-block;
+  overflow: auto;
+}
+
+.small.button.round.expand { background-color: #66083b;
+  border-color: #85ffff;
+}
+
+#info { border: 1px solid GhostWhite; 
+}
+
 .link { stroke: #85ffff;
-  stroke-width: 3.5;
+  stroke-width: 2.5;
 }
 
 p { color: gray; 
 }
 
-.header {
-  color: #93cccc;
-  font-weight: 900;
-}
-
 b { color: #669999; }
 
-#gta { 
-  color: #93cccc;
-  margin-bottom: 10px;
-}
-
-#title {
-  border: 1px solid GhostWhite;
-  text-align: center;
-  box-shadow: 3px 3px 3px GhostWhite;
-  margin-bottom: 10px;
+#gta { color: #85ffff;
 }
 
 #message { 
@@ -35,12 +45,7 @@ b { color: #669999; }
   margin-left: 3px;
   text-align: center;
 }
-
-.entry {
-  color: #f2f2f2;
-}
-
-.default { stroke: Snow;
+.default { stroke: GhostWhite;
   fill: gray;
 }
 
@@ -48,14 +53,15 @@ b { color: #669999; }
   fill: blue;
 }
 
-.Abolis { stroke: #ffff00;
-  fill: #006600;
+.Abolis { stroke: #ccdf00; 
+  fill: green;
 }
 
-.Federation { stroke: #ff0066;
-  fill: #000038;
+.Federation { stroke: #33ff33;
+  fill: #1f1f5c;
 }
 
 .Red.Corps { stroke: #85ffff;
-  fill: #cc0000; 
+  fill: red;
 }
+
