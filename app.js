@@ -71,7 +71,7 @@ function words(rack, res) {
     if (rack[i] == '*') {
       stars += 1;
       if (stars >= 2) {
-        start = stars + 7;
+        start += 1;
         words[stars + 5] = merger(dict[stars + 5]);
         count += 1;
       }
