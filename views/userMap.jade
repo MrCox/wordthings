@@ -2,7 +2,7 @@
 html
   head
     title = PageTitle
-    script(src = '/public/d3.min.js')
+    script(src = '/public/d3.js')
     link(rel = 'stylesheet', href = '/public/css/stylemap.css')
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
   body(style = 'text-align:center;background-color:black')
@@ -10,6 +10,8 @@ html
       svg#canvas(width = 2500, height = 2500)
         g#collection
           image#milkyway(xlink:href = '/public/css/map.png', width = 2500, height = 2500)
+        g#controlPanel
+          rect(height = '10%', width = '100%', fill-opacity = .4, fill = 'GhostWhite', stroke = '#ccffff', style='stroke-width:3px;')
     div.row(style='display:none')
       script(src = '/public/js/data.js')
       script(src = '/public/js/userMap.js')

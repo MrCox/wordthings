@@ -9,9 +9,33 @@
   overflow: auto;
 }
 
+.nodeTitle {
+  //stroke: green;
+  fill: #cc0000;
+  stroke-width: .5px;
+  font-weight:bolder; 
+  font-size: 160%;
+} 
+
 #innerpanel { width: 100%;
   height: 100%;
   display: inline-block;
+}
+
+.button {
+  fill: #85ffff;
+  stroke: #c4ffff;
+  stroke-width: 2px;
+  fill-opacity: .3;
+}
+
+.buttonText {
+  fill: GhostWhite;
+  fill-opacity: .6;  
+  font-weight: bolder;
+  font-size: 100%;
+  pointer-events: none;
+  text-anchor: middle;
 }
 
 #map { width: 75%;
@@ -51,6 +75,15 @@ b { color: #669999; }
 
 .Other { stroke: #85ffff;
   fill: blue;
+}
+
+.controlPanel { 
+  height = 10%;
+  width = 100%;
+//  fill-opacity = .4;
+  fill = GhostWhite;
+  stroke = #ccffff;
+  stroke-width = 3px;
 }
 
 .Abolis { stroke: #ccdf00; 
