@@ -147,10 +147,14 @@ map.zoom = function(d) {
         + 'translate(' + (w / 2 - x) + ',' + (h / 2 - y) + ')');
   } else {
     k = map.currentScale;
+    center = 2500 / k;
     centered = null;
     collection.transition()
-      .duration(1750)
-      .attr('transform', 'scale(' + k + ')');
+      .duration(1000)
+      .attr('transform',
+        'scale(' + k + ')' + 
+        'translate(' + (center - 2500) / 4 + ',0)'
+      );
   }
 };
 
@@ -185,11 +189,13 @@ map.button = function(d, i) {
   //entering buttons
   var newButtons = buttons.enter().append('g')
     .class('button')
+    .style('opacity', 0)
     .transform(function() {
       return 'translate(' + center + ',' + rheight * i + ')'
     });
 
-  newButtons.transition().duration(900)
+  newButtons.transition().duration(1000)
+    .style('opacity', 1)
     .attr('transform', function(d, j) {
       return 'translate(' + scooch(j) + ',' + rheight * i + ')'
     });
