@@ -134,7 +134,6 @@ map.graphControlPanel = function() {
   var button = map.button,
    dats = [ 
      {'id' : 'showLinks', 'text': 'Toggle Links'},
-     {'id' : 'trip', 'text': 'Plot Route'}
     ],
     rows = [dats, []];
 
