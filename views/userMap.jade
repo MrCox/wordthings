@@ -5,11 +5,11 @@ html
     script(src = '/public/d3.js')
     link(rel = 'stylesheet', href = '/public/css/stylemap.css')
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
-  body(style = 'text-align:center;background-color:black')
+  body
     #map
-      svg#canvas(width = 2500, height = 2500)
+      svg#canvas
         g#collection
-          image#milkyway(xlink:href = '/public/css/map.png', width = 2500, height = 2500)
+          image#milkyWay(xlink:href = '/public/css/map.png')
         g#controlPanel
     div.row(style='display:none')
       script(src = '/public/js/data.js')

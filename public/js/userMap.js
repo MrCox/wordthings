@@ -14,38 +14,18 @@ attrs.forEach(function(a) {
   };
 });
 
-var map = {},
-  clickMap = {};
-
-// Click handlers
-
-clickMap.showLinks = function(d, i) { 
-    var modeMap = {'1':'0', '0':'1'},
-      mode = ds(this).attr('mode'),
-      text = ds(this).select('.buttonText'),
-      textMap = {'0' : 'Untoggle Links', '1': 'Toggle Links'};
-   
-    ds(this).attr('mode', modeMap[mode])
-    text.text(textMap[mode])
-    if (mode == '0')
-      map.renderLinks();
-    if (mode == '1') 
-      map.renderLinks([]);
-};
-
-map.currentScale = .6;
-
-var b = ds(window)[0][0],
+var b = window,
   w = b.innerWidth,
-  h = b.innerHeight,
-  collection = ds('#collection')
-    .attr('transform', 'scale(' + map.currentScale + ')'),
-  canvas = ds('#canvas')
-    .attr('height', 2500 * map.currentScale)
-    .attr('width', 2500*map.currentScale),
+  h = b.innerHeight;
+
+map = {};
+clickMap = {};
+
+var collection = ds('#collection'),
+  canvas = ds('#canvas'),
   controlPanel = ds('#controlPanel'),
-  Map = ds('#map')
-    .style('height', h + 'px'),
+  Map = ds('#map'),
+  milkyWay = ds('#milkyWay').height(2500).width(2500),
   classes = {
       'Federation' : 'node Federation',
       'Abolis' : 'node Abolis',
@@ -64,6 +44,53 @@ var b = ds(window)[0][0],
     },
     centered;
 
+map.preRender = function() {
+  map.currentScale = h / 2500;
+  var center = 2500 / (map.currentScale);
+
+  canvas = ds('#canvas')
+    .style('background-color', 'black')
+    .height(h)
+    .width(w);
+
+  collection.transform(
+    'scale(' + map.currentScale + ')' + 
+    'translate(' + (center - 2500) / 4 + ',0)'
+  );
+};
+
+window.onresize = function(event) {
+  w = window.innerWidth;
+  h = window.innerHeight;
+  map.currentScale = h / 2500;
+  var center = 2500 / (map.currentScale);
+
+  canvas = ds('#canvas')
+    .height(h)
+    .width(w)
+
+  collection.transform(
+    'scale(' + map.currentScale + ')' + 
+    'translate(' + (center - 2500)/4 + ',0)'
+  );
+};
+
+// Click handlers
+
+clickMap.showLinks = function(d, i) { 
+    var modeMap = {'1':'0', '0':'1'},
+      mode = ds(this).attr('mode'),
+      text = ds(this).select('.buttonText'),
+      textMap = {'0' : 'Untoggle Links', '1': 'Toggle Links'};
+   
+    ds(this).attr('mode', modeMap[mode])
+    text.text(textMap[mode])
+    if (mode == '0')
+      map.renderLinks();
+    if (mode == '1') 
+      map.renderLinks([]);
+};
+
 map.links = JSON.parse(GTA_data.links);
 
 map.nodes = JSON.parse(GTA_data.nodes).map(function(d) { 
@@ -81,74 +108,30 @@ map.nodes = JSON.parse(GTA_data.nodes).map(function(d) {
 var percent = function(d) {
   return +d.slice(0, d.length - 2) / 100
 };
-map.rowHeight = map.currentScale * 90;
-map.button = function(d, i, D) {
-  var button = ds(this).append('g'),
-    w = 2500 * map.currentScale,
-    height = .06 * h,
-    width = .08 * w,
-    rheight = map.rowHeight / 2,
-    critInd = (D.length - 1) / 2,
-    margin = D.length % 2 == 0 ? width / 4 : width / 2,
-    center = (w - width) / 2,
-    scooch = function(i) {
-      return i < critInd ? center - (critInd - i) * width - margin
-        : i == critInd ? center
-        : center + (i - critInd) * width + margin
-    };
 
-  button.transform(function() {
-      return 'translate(' + center + ',' + rheight + ')'
-    });
-
-  button.transition().duration(900)
-    .attr('transform', function(d) {
-      return 'translate(' + scooch(i) + ',' + rheight + ')'
-    });
-
-  button.append('rect')
-    .attr('class','button')
-    .attr('mode', '0')
-    .attr('height', height)
-    .attr('width', width)
-    .attr('id', function(d) { return d.id})
-    .on('click', function(d, i) { 
-      clickMap[ds(this).id()].apply(this, arguments);
-    })
-    .on('mouseover', function() { 
-      ds(this).style('fill', 'GhostWhite')
-    })
-    .on('mouseout', function() {
-      ds(this).style('fill', '#85ffff')
-    });
- 
-  button.append('text')
-    .class('buttonText')
-    .transform('translate(' + width / 2 + ',' + height / 2 + ')')
-    .text(function(d) {return d.text});
-
-    return button;
-};
+map.buttonData = [ 
+ {'id' : 'showLinks', 'text': 'Toggle Links'},
+ {'id' : 'planTrip', 'text': 'Plan Trip'}
+],
 
 map.graphControlPanel = function() {
-  var button = map.button,
-   dats = [ 
-     {'id' : 'showLinks', 'text': 'Toggle Links'},
-    ],
+  var dats = map.buttonData,
     rows = [dats, []];
 
+  //update row data
   var rows = controlPanel.da('.row')
     .data(rows)
-    .enter().append('g')
-    .class('row');
-
-  var cg = rows.selectAll('.button')
-    .data(dats)
-    .enter()
+  
+  //entering rows
+  var rowEnter = rows.enter()
     .append('g')
+    .class('row')
     .each(function(d, i) { 
-      button.call(this, d, i, dats);
-    })
+      map.button.apply(this, arguments);
+    });
+
+  //exiting rows
+  rows.exit().remove();
 };
 
 map.zoom = function(d) {
@@ -177,6 +160,64 @@ map.examine = function(d, i, s) {
   if (d3.event.type == 'click')
     map.zoom(d);
 };
+
+map.rowHeight = h * .08;
+map.buttonHeight = h * .04;
+map.buttonWidth = w * .08;
+
+map.button = function(d, i) { 
+  var height = map.buttonHeight,
+    width = map.buttonWidth,
+    rheight = map.rowHeight / 2,
+    critInd = (d.length - 1) / 2,
+    margin = d.length % 2 == 0 ? width / 4 : width / 2,
+    center = (w - width) / 2,
+    scooch = function(i) {
+      return i < critInd ? center - (critInd - i) * width - margin
+        : i == critInd ? center
+        : center + (i - critInd) * width + margin
+    };
+
+  //update data
+  var buttons = ds(this).da('.button')
+    .data(function() { return d});
+
+  //entering buttons
+  var newButtons = buttons.enter().append('g')
+    .class('button')
+    .transform(function() {
+      return 'translate(' + center + ',' + rheight * i + ')'
+    });
+
+  newButtons.transition().duration(900)
+    .attr('transform', function(d, j) {
+      return 'translate(' + scooch(j) + ',' + rheight * i + ')'
+    });
+
+  newButtons.append('rect')
+    .attr('mode', '0')
+    .attr('height', height)
+    .attr('width', width)
+    .attr('id', function(d) { return d.id})
+    .on('click', function(d, i) { 
+      clickMap[ds(this).id()].apply(this, arguments);
+    })
+    .on('mouseover', function() { 
+      ds(this).style('fill', 'GhostWhite')
+    })
+    .on('mouseout', function() {
+      ds(this).style('fill', '#85ffff')
+    });
+ 
+  newButtons.append('text')
+    .class('buttonText')
+    .transform('translate(' + width / 2 + ',' + height / 2 + ')')
+    .text(function(d) {return d.text});
+
+  //exiting buttons
+  buttons.exit().remove();
+};
+
 
 // Map-rendering function
 map.renderLinks = function(array) {
@@ -254,5 +295,6 @@ map.renderNodes = function() {
   mapnodes.exit().remove();
 };
 
+map.preRender();
 map.renderNodes();
 map.graphControlPanel();
