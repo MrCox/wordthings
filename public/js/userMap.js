@@ -25,7 +25,15 @@ var collection = ds('#collection'),
   canvas = ds('#canvas'),
   controlPanel = ds('#controlPanel'),
   Map = ds('#map'),
+  advert = ds('#advert').style('visibility', 'hidden'),
   milkyWay = ds('#milkyWay').height(2500).width(2500),
+  title = ds('#title').on('mouseover', function() { 
+    ds(this).style('stroke-width', '2px');
+    advert.style('visibility', null);
+  }).on('mouseout', function() { 
+    ds(this).style('stroke-width', '1px');
+    advert.style('visibility', 'hidden');
+  }),
   classes = {
       'Federation' : 'node Federation',
       'Abolis' : 'node Abolis',
@@ -44,6 +52,8 @@ var collection = ds('#collection'),
     },
     centered;
 
+map.factor = 1;
+
 map.preRender = function() {
   map.currentScale = h / 2500;
   var center = 2500 / (map.currentScale);
@@ -59,20 +69,24 @@ map.preRender = function() {
   );
 };
 
-window.onresize = function(event) {
+map.applyScale = function() { 
   w = window.innerWidth;
   h = window.innerHeight;
-  map.currentScale = h / 2500;
+  map.currentScale = (h / 2500) * map.factor;
   var center = 2500 / (map.currentScale);
 
   canvas = ds('#canvas')
-    .height(h)
-    .width(w)
+    .attr('height',h * map.factor)
+    .attr('width', w * map.factor)
 
   collection.transform(
     'scale(' + map.currentScale + ')' + 
     'translate(' + (center - 2500)/4 + ',0)'
   );
+};
+
+window.onresize = function(event) {
+  map.applyScale();
 };
 
 // Click handlers
@@ -110,9 +124,11 @@ var percent = function(d) {
 };
 
 map.buttonData = [ 
- {'id' : 'showLinks', 'text': 'Toggle Links'},
- {'id' : 'planTrip', 'text': 'Plan Trip'}
+  {'id' : 'showLinks', 'text': 'Toggle Links'},
+  {'id' : 'planTrip', 'text': 'Plan Trip'}
 ],
+
+map.modeButtons = [];
 
 map.graphControlPanel = function() {
   var dats = map.buttonData,
@@ -166,9 +182,30 @@ map.examine = function(d, i, s) {
 };
 
 map.rowHeight = h * .08;
-map.buttonHeight = h * .04;
-map.buttonWidth = w * .08;
+map.buttonHeight = h * .03;
+map.buttonWidth = w * .06;
 
+map.scooch = function(critInd, center, width, margin) {
+  return function(i) {
+    return i < critInd ? center - (critInd - i) * width - margin
+      : i == critInd ? center
+      : center + (i - critInd) * width + margin
+  };
+};
+map.buttonEvents = function(s) { 
+  return s.on('click', function(d, i) { 
+      clickMap[ds(this).id()].apply(this, arguments);
+    })
+    .on('mouseover', function() { 
+      ds(this).style('fill', 'GhostWhite')
+        .style('stroke-width', '3px')
+    })
+    .on('mouseout', function() {
+      ds(this).style('fill', '#85ffff')
+        .style('stroke-width', '2px')
+          .ds('text').style('stroke-width', '1px')
+    });
+};
 map.button = function(d, i) { 
   var height = map.buttonHeight,
     width = map.buttonWidth,
@@ -176,23 +213,23 @@ map.button = function(d, i) {
     critInd = (d.length - 1) / 2,
     margin = d.length % 2 == 0 ? width / 4 : width / 2,
     center = (w - width) / 2,
-    scooch = function(i) {
-      return i < critInd ? center - (critInd - i) * width - margin
-        : i == critInd ? center
-        : center + (i - critInd) * width + margin
-    };
+    scooch = map.scooch(critInd, center, width, margin);
 
   //update data
   var buttons = ds(this).da('.button')
     .data(function() { return d});
 
+  //current buttons
+  buttons.call(map.buttonEvents);
+
   //entering buttons
   var newButtons = buttons.enter().append('g')
     .class('button')
+    .call(map.buttonEvents)
     .style('opacity', 0)
     .transform(function() {
       return 'translate(' + center + ',' + rheight * i + ')'
-    });
+    })
 
   newButtons.transition().duration(1000)
     .style('opacity', 1)
@@ -205,18 +242,10 @@ map.button = function(d, i) {
     .attr('height', height)
     .attr('width', width)
     .attr('id', function(d) { return d.id})
-    .on('click', function(d, i) { 
-      clickMap[ds(this).id()].apply(this, arguments);
-    })
-    .on('mouseover', function() { 
-      ds(this).style('fill', 'GhostWhite')
-    })
-    .on('mouseout', function() {
-      ds(this).style('fill', '#85ffff')
-    });
  
   newButtons.append('text')
     .class('buttonText')
+    .attr('dy', '.3em')
     .transform('translate(' + width / 2 + ',' + height / 2 + ')')
     .text(function(d) {return d.text});
 
@@ -267,8 +296,8 @@ map.renderNodes = function() {
       return 'translate(' + d.ox + ',' + d.oy + ')'})
 
   nodeG.append('text')
-    .attr('class', 'nodeTitle')
-    .attr('transform', 'translate(20, 0)')
+    .class('nodeTitle')
+    .transform(function(d) { return 'translate(20,0)'})
     .text(function(d) { return d.name})
 
   nodeG.append('circle')
