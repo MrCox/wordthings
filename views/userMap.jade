@@ -7,16 +7,21 @@ html
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
   body
     #map
-      svg(width = '100%', height ='5%')
-        g
-          text#title.official(x = '25%', y = '50%', transform = 'scale(2,1.5)') GALLOPING MAP
-      svg(width = '100%', height ='5%')
-        g
-          text#advert.official2(x = '50%', y = '50%') Brought to you by the Galactic Transit Authority: a proud subsidiary of the Red Corps.
       svg#canvas
         g#collection
           image#milkyWay(xlink:href = '/public/css/map.png')
-        g#controlPanel
+        g#logo
+          g#title
+            text.official(x = '50%', y = '5%') Map of officially sanctioned
+            text.official(x='19%', y = '5.5%', transform = 'scale(2, 1.5)') G
+            text.official(x = '25%', y = '8%', transform = 'scale(2,1)') ALLOPING NODE
+            text.official(x = '30.85%', y = '5.5%', transform = 'scale(2, 1.5)') S
+            rect.official(x = '37.1%', y = '8.5%', width = '25.5%', height = '.25%')
+          g
+            text#advert.official2(x = '50%', y = '11%') Brought to you by the Galactic Transit Authority: a proud subsidiary of the Red Corps.
+        g#container
+          g#controlPanel
+          g#plotRoute
     div.row(style='display:none')
       script(src = '/public/js/data.js')
       script(src = '/public/js/userMap.js')

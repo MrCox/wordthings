@@ -15,15 +15,21 @@
   stroke-width: 1px;
   font-weight:bolder; 
   font-size: 160%;
-} 
+}
 
 #innerpanel { width: 100%;
   height: 100%;
   display: inline-block;
 }
 
+.container {
+   width: 100%;
+   height: 7%;
+   fill-opacity: .4;
+}
+
 .official {
-  text-decoration: underline;
+  //text-decoration: underline;
   fill: maroon;
   stroke: red;
   stroke-width: 1px;
@@ -32,6 +38,10 @@
   font-size: 150%;
   cursor: default;
   text-anchor:middle;
+}
+
+.super {
+  font-size: 125%;
 }
 
 .official2 {
