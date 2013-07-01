@@ -2,6 +2,26 @@
   overflow: hidden;
 }
 
+.honing circle {
+  stroke: blue;
+  stroke-width: 5px;
+  fill-opacity: .4;
+  fill: Navy;
+}
+
+.background {
+  fill-opacity: .4;
+  fill: Navy;
+}
+
+.instructions {
+  fill: #85ffff;
+  font-weight: bolder;
+  font-size: 100%;
+  text-anchor: middle;
+  cursor: default;
+};
+
 #panel { width: 25%;
   border: solid 1px #85ffff;
   display: inline-block;
@@ -17,6 +37,12 @@
   font-size: 160%;
 }
 
+.vertexTitle {
+  fill: #85ffff;
+  font-weight: bolder;
+  font-size: 130%;
+}
+
 #innerpanel { width: 100%;
   height: 100%;
   display: inline-block;
@@ -29,7 +55,6 @@
 }
 
 .official {
-  //text-decoration: underline;
   fill: maroon;
   stroke: red;
   stroke-width: 1px;
@@ -48,27 +73,26 @@
   font-style: italic;
   fill: GhostWhite;
   stroke: #85ffff;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
   fill-opacity: .7;
-  font-weight: bolder;
+  //font-weight: bolder;
   font-size: 100%;
   pointer-events:none;
   text-anchor: middle;
 }
 
 .button {
-  fill: #85ffff;
+  fill: Navy;
   stroke: #c4ffff;
   stroke-width: 2px;
-  fill-opacity: .3;
+  fill-opacity: .6;
 }
 
 .buttonText {
   fill: GhostWhite;
   fill-opacity: .5
   stroke-width: 1px;
-  font-weight: bold;
-  font-size: 100%;
+  font-size: 90%;
   pointer-events:none;
   text-anchor: middle;
 }

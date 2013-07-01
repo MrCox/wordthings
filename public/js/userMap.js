@@ -23,12 +23,15 @@ var b = window,
   collection = ds('#collection'),
   container = ds('#container'),
   logo = ds('#logo'),
+  zoom = ds('#zoom'),
   canvas = ds('#canvas').style('background-color', 'black'),
   controlPanel = ds('#controlPanel'),
   Map = ds('#map').style('width', '100%'),
   advert = ds('#advert').style('visibility', 'hidden'),
   milkyWay = ds('#milkyWay').height(2500).width(2500),
   plotRoute = ds('#plotRoute').transform('translate(0,' + .05 * h + ')'),
+  hide = ds('#hide').on('click', function() { 
+    clickMap[ds(this).id()].apply(this, arguments)}),
   title = ds('#title')
       .on('mouseover', function() { 
           ds(this).da('.official')
@@ -55,11 +58,65 @@ var b = window,
       'cluster':null, 
       'habitat':null
     },
-    percent = function(d) { return +d.slice(0, d.length - 2) / 100 },
     centered,
     factor = 1,
     currentScale = h / 2500,
-    currentMode = 'examine';
+    currentMode = 'examine',
+    controlPanelCoords = function(w, h) {
+      return 'translate(' + -w * .03 + ',' + h * .11 + ')';
+    },
+    logoCoords = function(w, h) { 
+      return 'translate(' + -w * .03 + ',' + -h * .02 + ')';
+    };
+
+map.zoomEvents = function(s) { 
+  /*return s.on('mouseover', function() { 
+    ds(this).style('stroke-width', '2px');
+    })
+    .on('mouseout', function() { 
+      ds(this).style('stroke-width', null);
+    })
+    .on('click', function(d, i) { 
+      var i = ds(this).id();
+      if (i == 'less') {
+        if (map.factor() > .4) {
+          map.factor(map.factor() - .2);
+        };
+      } else if (i == 'more') {
+        if (map.factor() < 2)
+          map.factor(map.factor() + .2);
+      };
+      var x = map.factor() * w - w;
+        y = map.factor() * h - h;
+      ds('#scaling').attr('transform', 'scale(' + map.factor() + ')'
+        + 'translate(' + (-x/4) + ',' + (y/4) + ')');
+    }); */
+};
+
+zoom.append('path')
+  .transform('translate(' + .7*w + ',' + .05 * h + ')')
+  .attr('d', d3.svg.symbol().type('cross').size(300))
+  .class('official')
+  .id('more')
+  .style('fill-opacity', .5)
+  .call(map.zoomEvents);
+
+zoom.append('path')
+  .transform('translate(' + .7*w + ',' + .1 * h + ')scale(1, .5)')
+  .attr('d', d3.svg.symbol().type('square').size(300))
+  .id('less')
+  .class('official')
+  .style('fill-opacity', .5)
+  .call(map.zoomEvents);
+
+map.zoomButtons = function(w, h) { 
+  zoom.da('path')
+    .transform(function(d, i) { 
+      var f = i == 0 ? .05 : .1,
+        s = i == 0 ? '' : 'scale(1, .5)';
+      return 'translate(' + .7*w + ',' + f * h + ')' + s;
+    });
+};
 
 //getter-setters
 map.factor = function(_) { 
@@ -100,10 +157,33 @@ map.vertices = [];
 
 map.buttonData = [ 
   {'id' : 'showLinks', 'text': 'Toggle Links'},
-  {'id' : 'planTrip', 'text': 'Plan Trip'}
+  {'id' : 'planTrip', 'text': 'Plot Route'}
 ];
 
 //utilities
+map.findAccessibleNodes = function(data) {
+  if (data.length) {
+    var last = data[data.length - 1],
+      lastLinks = last.links,
+      unique = [];
+
+    //get data of accessible nodes
+    data = collection.da('.nodeG')
+      .filter(function(d) {
+        for (var i in lastLinks) { 
+          if (lastLinks[i].source == d.name || lastLinks[i].target == d.name) {
+            if (d.name != last.name)
+              return true;
+          };
+        };
+      }).data();
+  };
+  map.highlightAccessibleNodes(data);
+};
+
+map.updateCollectionScale = function() { 
+};
+
 map.applyScale = function() { 
   w = window.innerWidth;
   h = window.innerHeight;
@@ -111,33 +191,36 @@ map.applyScale = function() {
   var scale = map.currentScale((h / 2500) * map.factor()),
     center = 2500 / scale;
 
-  container.transform(
-      'translate(' + -w * .03 + ',' + h * .11 + ')'
-    );
+  map.zoomButtons(w, h);
 
-  logo.transform(
-      'translate(' + -w * .03 + ',' + -h * .02 + ')'
-    );
+  container.transform(controlPanelCoords(w, h));
 
-  canvas.attr('height', h * map.factor())
-    .attr('width', w * map.factor());
+  logo.transform(logoCoords(w, h));
 
-  collection.transform(
-    'scale(' + map.currentScale() + ')' + 
-    'translate(' + (center - 2500)/4 + ',0)'
-  );
+  canvas.attr('height', h)
+    .attr('width', w)
+
+  collection
+    .attr('transform', 'scale(' + scale + ')' + 
+    'translate(' + (center - 2500)/4 + ',0)');
 };
 
 map.scooch = function(critInd, center, width, margin) {
   return function(i) {
-    return i < critInd ? center - (critInd - i) * width - margin
+    var distance = critInd - i,
+      margin = width / 2;
+   return (i < critInd && distance > 1) ? center - (distance * width + 2 * margin)
+      : (i < critInd && critInd - i <= 1) ? center - (distance * width + margin)
       : i == critInd ? center
-      : center + (i - critInd) * width + margin
+      : (i > critInd && -distance > 1) ? center + (-distance) * width + 2 * margin
+      : (i > critInd && -distance <= 1) ? center + (-distance) * width + margin
+      : center;
   };
 };
 
 map.zoom = function(d) {
-  var x, y, k = map.currentScale();
+  var x, y, k = map.currentScale() * map.factor();
+  var w = window.innerWidth, h = window.innerHeight;
   if (d.name != centered) {
     k = 1.8 * k;
     x = d.ox * k;
@@ -147,7 +230,6 @@ map.zoom = function(d) {
       .duration(1000)
       .attr('transform','scale(' + k + ')' 
         + 'translate(' + (w / 2 - x) + ',' + (h / 2 - y) + ')');
-
   } else {
     k = map.currentScale();
     center = 2500 / k;
@@ -166,118 +248,14 @@ map.buttonEvents = function(s) {
       clickMap[ds(this).id()].apply(this, arguments);
     })
     .on('mouseover', function() { 
-      ds(this).style('fill', 'GhostWhite')
-        .style('stroke-width', '3px')
+      ds(this).style('stroke-width', '2.5px')
     })
     .on('mouseout', function() {
-      ds(this).style('fill', '#85ffff')
-        .style('stroke-width', '2px')
+      ds(this).style('stroke-width', '2px')
     });
 };
 
-map.Path = function() {
-  var w = window.innerWidth,
-    h = window.innerHeight,
-    data = map.vertices,
-    rheight = map.rowHeight(h) / 2,
-    critInd = (data.length - 1) / 2,
-    width = 20, 
-    margin = data.length % 2 == 0 ? width / 4 : width / 2,
-    center = (w - width) / 2,
-    scooch = map.scooch(critInd, center, width, margin);
-
-  //updateData
-  var vertex = ds(this)
-    .da('.vertex')
-    .data(data);
-
-  //current selection
-  vertex.transition()
-    .attr(function(d, i) { 
-      'translate(' + scooch(i) + ',' + rheight + ')' 
-    });
-
-  vertex.class(function(d) {
-    var p = d.government;
-    return p in classes ? classes[p] : 'node default';
-  });
-
-  //entering selection
-  var newVertices = vertex.enter()
-    .append('g').transform(function(d, i) {
-      return 'translate(' + scooch(i) + ',' + rheight + ')';
-    }).class('vertex')
-    
-  newVertices.append('circle')
-    .class('node')
-    .attr('class', function(d) {
-      var p = d.government;
-      return p in classes ? classes[p] : 'node default'})
-    .attr('r', 10)
-    .style('stroke-width', '4');
-
-  newVertices.append('text')
-    .transform('translate(0,20)')
-    .style('text-anchor', 'middle')
-    .text(function(d) {return d.name});
-
-  //exiting selection
-  vertex.exit()
-    .transition()
-    .attr('transform', 'scale(0)')
-    .style('opacity', 0);
-};
-
-map.button = function(d, i) { 
-  var w = window.innerWidth,
-    h = window.innerHeight,
-    height = map.buttonHeight(h),
-    width = map.buttonWidth(w),
-    rheight = map.rowHeight(h) / 2,
-    critInd = (d.length - 1) / 2,
-    margin = d.length % 2 == 0 ? width / 4 : width / 2,
-    center = (w - width) / 2,
-    scooch = map.scooch(critInd, center, width, margin);
-
-  //update data
-  var buttons = ds(this).da('.button')
-    .data(function() { return d});
-
-  //current buttons
-  buttons.call(map.buttonEvents);
-
-  //entering buttons
-  var newButtons = buttons.enter().append('g')
-    .class('button')
-    .attr('id', function(d) { return d.id})
-    .attr('mode', '0')
-    .call(map.buttonEvents)
-    .style('opacity', 0)
-    .transform(function() {
-      return 'translate(' + center + ',' + rheight * i + ')'
-    })
-
-  newButtons.transition().duration(1000)
-    .style('opacity', 1)
-    .attr('transform', function(d, j) {
-      return 'translate(' + scooch(j) + ',' + rheight * i + ')'
-    });
-
-  newButtons.append('rect')
-    .attr('height', height)
-    .attr('width', width)
- 
-  newButtons.append('text')
-    .class('buttonText')
-    .attr('dy', '.3em')
-    .transform('translate(' + width / 2 + ',' + height / 2 + ')')
-    .text(function(d) {return d.text});
-
-  //exiting buttons
-  buttons.exit().remove();
-};
-
-// Map-rendering functions
+// rendering functions
 map.renderControlPanel = function() {
   var dats = map.buttonData,
     rows = [dats, []];
@@ -352,6 +330,7 @@ map.renderNodes = function(array) {
 
   //entering selection
   var nodeG = mapnodes.enter().append('g')
+    .class('nodeG')
     .transform(function(d, i) { return 'translate(' + d.ox + ',' + d.oy + ')'});
 
   nodeG.append('text')
@@ -364,6 +343,188 @@ map.renderNodes = function(array) {
 
   //exiting selection
   mapnodes.exit().remove();
+};
+
+map.button = function(d, i) { 
+  var w = window.innerWidth,
+    h = window.innerHeight,
+    height = map.buttonHeight(h),
+    width = map.buttonWidth(w),
+    rheight = map.rowHeight(h) / 2,
+    critInd = (d.length - 1) / 2,
+    center = (w - width) / 2,
+    scooch = map.scooch(critInd, center, width);
+
+  //update data
+  var buttons = ds(this).da('.button')
+    .data(function() { return d});
+
+  //current buttons
+  buttons.call(map.buttonEvents);
+
+  //entering buttons
+  var newButtons = buttons.enter().append('g')
+    .class('button')
+    .attr('id', function(d) { return d.id})
+    .attr('mode', '0')
+    .call(map.buttonEvents)
+    .style('opacity', 0)
+    .transform(function() {
+      return 'translate(' + center + ',' + rheight * i + ')'
+    })
+
+  newButtons.transition().duration(1000)
+    .style('opacity', 1)
+    .attr('transform', function(d, j) {
+      return 'translate(' + scooch(j) + ',' + rheight * i + ')'
+    });
+
+  newButtons.append('rect')
+    .attr('height', height)
+    .attr('width', width)
+ 
+  newButtons.append('text')
+    .class('buttonText')
+    .attr('dy', '.3em')
+    .transform('translate(' + width / 2 + ',' + height / 2 + ')')
+    .text(function(d) {return d.text});
+
+  //exiting buttons
+  buttons.exit().remove();
+};
+
+map.plotRoute = function() {
+  var w = window.innerWidth,
+    h = window.innerHeight,
+    data = map.vertices,
+    rheight = .05 * h / 2,
+    critInd = (data.length - 1) / 2,
+    width = .05 * w,
+    center = (w - width) / 2,
+    scooch = map.scooch(critInd, center, width);
+
+  map.findAccessibleNodes(data);
+
+  if (!(data.length || map.currentMode() == 'examine')) { 
+      var instruct = ds(this).append('text')
+        .transform('translate(' + w / 2 + ',' + rheight + ')')
+        .class('instructions')
+        .style('opacity', 0)
+      instruct.transition()
+        .style('opacity', 1);
+      instruct.text(
+       'Click on a node to plot it; click on a plotted node to remove it.')
+  } else { 
+    ds(this).ds('.instructions').transition()
+      .style('opacity', 0)
+      .remove();
+  };
+
+  //updateData
+  var vertex = ds(this)
+    .da('.vertex')
+    .data(data);
+
+  //current selection
+  vertex.transition()
+    .attr('transform', function(d, i) { 
+      return 'translate(' + scooch(i) + ',' + rheight + ')' 
+    });
+
+  vertex.ds('.node')
+    .class(function(d) {
+      var p = d.government;
+      return p in classes ? classes[p] : 'node default';
+    });
+
+  vertex.ds('text')
+    .text(function(d) { return d.name});
+
+  //entering selection
+  var newVertices = vertex.enter()
+    .append('g')
+    .class('vertex')
+    .on('click', function(d) { 
+      map.vertices.forEach(function(v, i) { 
+        if (v.name == d.name) { 
+          map.vertices.splice(i, 1);
+        };
+      });
+      plotRoute.each(function() { map.plotRoute.apply(this, arguments);});
+    });
+
+  newVertices.transition()
+    .attr('transform', function(d, i) {
+      return 'translate(' + scooch(i) + ',' + rheight + ')';
+    });
+    
+  newVertices.append('circle')
+    .transform('scale(.5)')
+    .class(function(d) {
+      var p = d.government;
+      return p in classes ? classes[p] : 'node default'})
+    .r(10).style('stroke-width', '4');
+
+  newVertices.append('text')
+    .transform(function(d, i) { 
+      return 'translate(0,20)scale(.5)'
+    })
+    .style('text-anchor', 'middle')
+    .class('vertexTitle')
+    .text(function(d) {return d.name});
+
+  //exiting selection
+  vertex.exit()
+    .transition()
+    .attr('transform', 'scale(0)')
+    .style('opacity', 0)
+    .remove();
+};
+
+map.highlightAccessibleNodes = function(data) { 
+  //update data
+  var circles = collection.da('.honing')
+    .data(data);
+
+  //current selection;
+  circles.transition()
+    .attr('transform', function(d) { 
+      return 'translate(' + d.ox + ',' + d.oy + ')';
+    });
+
+  circles.ds('circle')
+    .transition()
+    .attr('r', 500);
+
+  circles.ds('circle')
+    .transition()
+    .delay(250)
+    .attr('r', 50);
+
+  //entering selection
+  var newCircles = circles.enter()
+    .insert('g', '.nodeG')
+    .class('honing')
+    .transform(function(d) {
+      return 'translate(' + d.ox + ',' + d.oy + ')'
+    });
+
+  newCircles.append('circle')
+    .r(500)
+    .transition()
+    .attr('r', 50);
+
+  //exiting selection
+  var gone = circles.exit();
+
+  gone.transition()
+    .style('opacity', 0)
+    .remove();
+
+  gone.ds('circle')
+    .transition()
+    .attr('r', 500)
+    .remove();
 };
 
 map.renderMap = function() { 
@@ -388,39 +549,73 @@ clickMap.showLinks = function(d, i) {
 };
 
 clickMap.planTrip = function(d, i) {
+  var textMap = {'Plot Route' : 'Remove Route', 
+    'Remove Route': 'Plot Route'},
+    text = ds(this).ds('text').text();
+
+  ds(this).ds('text').text(textMap[text]);
+
+  if (map.currentMode() == 'planTrip') {
+    map.vertices = [];
+    map.currentMode('examine');
+
+    plotRoute.each(function() {
+      map.plotRoute.apply(this, arguments);
+    });
+
+    plotRoute.da('rect').transition()
+      .style('fill-opacity', 0)
+      .remove();
+    return;
+  };
+
+  map.currentMode('planTrip');
+
   if (plotRoute.ds('.background').empty()) {
     plotRoute.append('rect')
       .class('background')
-      .width('100%')
-      .height('5%')
-      .fill('#85ffff')
-      .style('fill-opacity', '.5')
-      .each(function(d, i) {
-        map.Path.apply(this, arguments);
-      });
-  } else {
-    plotRoute.ds('.background')
-      .each(function(d, i) {
-        map.Path.apply(this, arguments);
-      });
+      .width('100%').height(0)
+      .transition().attr('height', '5%');
   };
+
+  plotRoute.each(function(d, i) {
+      map.plotRoute.apply(this, arguments);
+    });
 };
 
+//events on nodes
 map.examine = function(d, i) {
-  var m = {};
-  m.click = map.zoom;
-  m.mouseover = function(d, i) { 
-    map.renderLinks(d.links);
-  };
-  m.mouseout = function() { 
-    var mode = showLinks.attr('mode');
-    if (mode == '0') { 
-      map.renderLinks([]);
-    } else { 
-      map.renderLinks();
+  map.nodeEvents[d3.event.type].apply(this, arguments);
+};
+map.nodeEvents = {};
+map.nodeEvents.click = function(d, i) { 
+  var modeMap = {};
+
+  //for zooming in
+  modeMap.examine = map.zoom;
+
+  //for graphing routes
+  modeMap.planTrip = function(d, i) { 
+    var last = map.vertices[map.vertices.length - 1];
+    if (!last || last.name != d.name) {
+      map.vertices.push(d);
+      plotRoute.each(function(d, i) {
+        map.plotRoute.apply(this, arguments);
+      });
     };
   };
-  m[d3.event.type].apply(this, arguments);
+  modeMap[map.currentMode()].apply(this, arguments);
+};
+map.nodeEvents.mouseout = function() { 
+  var mode = ds('#showLinks').attr('mode');
+  if (mode == '0') { 
+    map.renderLinks([]);
+  } else { 
+    map.renderLinks();
+  };
+};
+map.nodeEvents.mouseover = function(d, i) { 
+  map.renderLinks(d.links);
 };
 
 window.onresize = function(event) {

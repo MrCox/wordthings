@@ -8,9 +8,11 @@ html
   body
     #map
       svg#canvas
-        g#collection
-          image#milkyWay(xlink:href = '/public/css/map.png')
+        g#scaling
+          g#collection
+            image#milkyWay(xlink:href = '/public/css/map.png')
         g#logo
+          g#zoom
           g#title
             text.official(x = '50%', y = '5%') Map of officially sanctioned
             text.official(x='19%', y = '5.5%', transform = 'scale(2, 1.5)') G
