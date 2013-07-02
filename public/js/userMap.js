@@ -28,8 +28,10 @@ var b = window,
   controlPanel = ds('#controlPanel'),
   Map = ds('#map').style('width', '100%'),
   advert = ds('#advert').style('visibility', 'hidden'),
+  containsControlPanel = ds('#lazyFix').transform('translate(0,' + -.005 * h + ')'),
   milkyWay = ds('#milkyWay').height(2500).width(2500),
-  plotRoute = ds('#plotRoute').transform('translate(0,' + .05 * h + ')'),
+  scaling = ds('#scaling'),
+  plotRoute = ds('#plotRoute').transform('translate(0,' + .03 * h + ')'),
   hide = ds('#hide').on('click', function() { 
     clickMap[ds(this).id()].apply(this, arguments)}),
   title = ds('#title')
@@ -70,7 +72,7 @@ var b = window,
     };
 
 map.zoomEvents = function(s) { 
-  /*return s.on('mouseover', function() { 
+  return s.on('mouseover', function() { 
     ds(this).style('stroke-width', '2px');
     })
     .on('mouseout', function() { 
@@ -79,18 +81,21 @@ map.zoomEvents = function(s) {
     .on('click', function(d, i) { 
       var i = ds(this).id();
       if (i == 'less') {
-        if (map.factor() > .4) {
+        if (map.factor() > 1) {
           map.factor(map.factor() - .2);
         };
       } else if (i == 'more') {
         if (map.factor() < 2)
           map.factor(map.factor() + .2);
       };
-      var x = map.factor() * w - w;
-        y = map.factor() * h - h;
-      ds('#scaling').attr('transform', 'scale(' + map.factor() + ')'
-        + 'translate(' + (-x/4) + ',' + (y/4) + ')');
-    }); */
+      var w = window.innerWidth, h = window.innerHeight;
+      x = (map.factor() - 1) * w,
+      y = (map.factor() - 1) * h,
+      f = map.factor();
+      ds('#scaling').transition().duration(400)
+        .attr('transform', 'scale(' + f + ')'
+        + 'translate(' + (-x/(2* f)) + ',' + (-y/(2 * f)) + ')');
+    });
 };
 
 zoom.append('path')
@@ -154,6 +159,7 @@ map.nodes = JSON.parse(GTA_data.nodes).map(function(d) {
 });
 
 map.vertices = [];
+map.accessNodes = [];
 
 map.buttonData = [ 
   {'id' : 'showLinks', 'text': 'Toggle Links'},
@@ -482,6 +488,7 @@ map.plotRoute = function() {
 };
 
 map.highlightAccessibleNodes = function(data) { 
+  map.accessNodes = data.map(function(d) { return d.name});
   //update data
   var circles = collection.da('.honing')
     .data(data);
@@ -575,7 +582,7 @@ clickMap.planTrip = function(d, i) {
     plotRoute.append('rect')
       .class('background')
       .width('100%').height(0)
-      .transition().attr('height', '5%');
+      .transition().attr('height', '8%');
   };
 
   plotRoute.each(function(d, i) {
@@ -598,10 +605,30 @@ map.nodeEvents.click = function(d, i) {
   modeMap.planTrip = function(d, i) { 
     var last = map.vertices[map.vertices.length - 1];
     if (!last || last.name != d.name) {
-      map.vertices.push(d);
-      plotRoute.each(function(d, i) {
-        map.plotRoute.apply(this, arguments);
-      });
+      if (map.accessNodes.indexOf(d.name) != -1 || (!map.accessNodes.length)) {
+        map.vertices.push(d);
+        plotRoute.each(function(d, i) {
+          map.plotRoute.apply(this, arguments);
+        });
+        if (!ds('.instructions').empty()) {
+          plotRoute.ds('.instructions')
+            .transition()
+            .style('opacity', 0)
+            .remove();
+        };
+      } else {
+        var h = window.innerHeight,
+          w = window.innerWidth,
+          rheight = .14 * h / 2;
+        var instruct = plotRoute.append('text')
+          .transform('translate(' + w / 2 + ',' + rheight + ')')
+          .class('instructions')
+          .style('opacity', 0);
+        instruct.transition()
+          .style('opacity', 1);
+        instruct.text(
+         'Valid destinations are highlighted on the map.')
+      };
     };
   };
   modeMap[map.currentMode()].apply(this, arguments);

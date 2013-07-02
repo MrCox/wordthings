@@ -91,7 +91,6 @@
 .buttonText {
   fill: GhostWhite;
   fill-opacity: .5
-  stroke-width: 1px;
   font-size: 90%;
   pointer-events:none;
   text-anchor: middle;
