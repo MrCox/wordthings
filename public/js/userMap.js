@@ -308,27 +308,43 @@ map.renderNodes = function(array) {
   var nodes = array ? array : map.nodes,
     coords = function(s) {
       return s.attr('id', function(d) { return d.name })
-              .attr('class', function(d) {
-                var p = d.government;
-                return p in classes ? classes[p] : 'node default'})
-              .attr('r', 10)
-              .style('stroke-width', '4')
-              .on('mouseover', function(d,i) { 
-                map.examine.apply(this, arguments);
-              }).on('mouseout', function(d, i) {
-                map.examine.apply(this, arguments);
-              }).on('click', function(d, i) {
-                map.examine.apply(this, arguments);
-              });
+        .attr('class', function(d) {
+          var p = d.government;
+          return p in classes ? classes[p] : 'node default'})
+        .attr('r', 10)
+        .style('stroke-width', '4')
+        .on('mouseover', function(d,i) { 
+          map.examine.apply(this, arguments);
+        }).on('mouseout', function(d, i) {
+          map.examine.apply(this, arguments);
+        }).on('click', function(d, i) {
+          map.examine.apply(this, arguments);
+        });
+    },
+    gEvents = function(s) { 
+      return s.transform(function(d, i) { 
+        return 'translate(' + d.ox + ',' + d.oy + ')' + 
+          'scale(' + map.factor() + ')';
+        }).on('mouseover', function(d, i) { 
+          ds(this).transform(function(d, i) {
+            return 'translate(' + d.ox + ',' + d.oy + ')' + 
+            'scale(' + 2 / map.factor() + ')';
+          });
+        }).on('mouseout', function(d, i) { 
+          ds(this).transform(function(d, i) { 
+            return 'translate(' + d.ox + ',' + d.oy + ')' + 
+            'scale(' + map.factor() + ')';
+          });
+        });
     };
-
+          
   //update data
   var mapnodes = collection.selectAll('.nodeG')
     .data(nodes);
 
   //current selection
   mapnodes
-    .transform(function(d, i) { return 'translate(' + d.ox + ',' + d.oy + ')'}) 
+    .call(gEvents)
     .each(function(d) { 
       ds(this).ds('text').text(d.name);
       ds(this).ds('.node').call(coords);
@@ -337,11 +353,12 @@ map.renderNodes = function(array) {
   //entering selection
   var nodeG = mapnodes.enter().append('g')
     .class('nodeG')
-    .transform(function(d, i) { return 'translate(' + d.ox + ',' + d.oy + ')'});
+    .call(gEvents);
 
   nodeG.append('text')
     .class('nodeTitle')
-    .transform(function(d) { return 'translate(20,0)'})
+    .transform('translate(' + 40/map.factor() + ',0)scale(' + 2/map.factor() + ')')
+    .attr('dy', '.3em')
     .text(function(d) { return d.name})
 
   nodeG.append('circle')

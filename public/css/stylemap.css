@@ -1,6 +1,14 @@
 #frame { 
   overflow: hidden;
 }
+#canvas {
+  t-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: moz-none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 .honing circle {
   stroke: blue;
@@ -30,11 +38,12 @@
 }
 
 .nodeTitle {
-  stroke: red;
-  fill: maroon;
+  stroke: maroon;
+  fill: red;
   stroke-width: 1px;
   font-weight:bolder; 
-  font-size: 160%;
+  pointer-events:none;
+  font-size:100%;
 }
 
 .vertexTitle {
