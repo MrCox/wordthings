@@ -590,6 +590,9 @@ clickMap.planTrip = function(d, i) {
     plotRoute.da('rect').transition()
       .style('fill-opacity', 0)
       .remove();
+    plotRoute.da('.instructions').transition()
+      .style('fill-opacity', 0)
+      .remove();
     return;
   };
 

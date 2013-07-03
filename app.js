@@ -8,7 +8,7 @@ var express = require('express'),
 process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 80);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -32,7 +32,7 @@ app.get('/', function(req, res) {
     })
 })
 
-app.get('/heyKara', function(req, res) {
+app.get('/sandbox', function(req, res) {
   res.render('sandbox.jade', {pageTitle: 'sandbox'})
 })
 
