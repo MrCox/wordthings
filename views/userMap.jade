@@ -8,17 +8,17 @@ html
   body
     #map
       svg#canvas
-        g#scaling
+        g#positionCollection
           g#collection
             image#milkyWay(xlink:href = '/public/css/map.png')
         g#logo
           g#zoom
           g#title
-            text.official(x = '50%', y = '5%') Map of officially sanctioned
-            text.official(x='19%', y = '5.5%', transform = 'scale(2, 1.5)') G
-            text.official(x = '25%', y = '8%', transform = 'scale(2,1)') ALLOPING NODE
-            text.official(x = '30.85%', y = '5.5%', transform = 'scale(2, 1.5)') S
-            rect.official(x = '37.1%', y = '8.5%', width = '25.5%', height = '.25%')
+            text.official Map of officially sanctioned
+            text.official G
+            text.official ALLOPING NODE
+            text.official S
+            rect.official
           g
             text#advert.official2(x = '50%', y = '11%') Brought to you by the Galactic Transit Authority: a proud subsidiary of the Red Corps.
         g#container

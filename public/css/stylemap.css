@@ -1,6 +1,9 @@
 #frame { 
   overflow: hidden;
 }
+#map {
+  overflow: auto;
+}
 #canvas {
   t-touch-callout: none;
   -webkit-user-select: none;
