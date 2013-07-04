@@ -102,6 +102,8 @@ map.zoomEvents = function(s) {
     });
 };
 
+zoom.transform('translate(' + x(3) + ',0)')
+
 zoom.append('path')
   .transform('translate(' + x(7) + ',' + y(5) + ')')
   .attr('d', d3.svg.symbol().type('cross').size(300))
@@ -281,14 +283,17 @@ map.buttonEvents = function(s) {
 map.scaleLogo = function() {
   var titles = title.da('text')[0];
   ds(titles[0]).x(x(50)).y(y(5));
-  ds(titles[1]).x(x(35 / 2)).y(y(8 / 1.5))
-    .transform('scale(2, 1.5)')
-  ds(titles[2]).x(x(25)).y(y(8))
+  //ds(titles[1]).x(x(35 / 2)).y(y(8 / 1.5))
+  //  .transform('scale(2, 1.5)')
+  var out = ds(titles[1]).x(x(25)).y(y(8))
     .transform('scale(2,1)');
-  ds(titles[3]).x(x(65 / 2)).y(y(8 / 1.5))
-    .transform('scale(2, 1.5)');
+  out.da('tspan').style('font-size', '130%')
+  //ds(titles[3]).x(x(65 / 2)).y(y(8 / 1.5))
+  //  .transform('scale(2, 1.5)');
   title.ds('rect').x(x(34.5)).y(y(8.5))
     .width(x(31)).height(y(.25));
+
+  advert.x(x(50)).y(y(11));
 };
 map.renderControlPanel = function() {
   var dats = map.buttonData,
