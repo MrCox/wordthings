@@ -1,3 +1,6 @@
+svg {
+  shape-rendering: optimizeSpeed;
+}
 #frame { 
   overflow: hidden;
 }
