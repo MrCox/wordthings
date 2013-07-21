@@ -2,10 +2,10 @@ var express = require('express'),
   app = express(),
   http = require('http'),
   fs = require('fs'),
-  dict = require('./masterDict'),
+  //dict = require('./masterDict'),
   cp = require('child_process');
 
-process.setMaxListeners(0);
+//process.setMaxListeners(0);
 
 app.configure( function() {
   app.set('port', process.env.PORT || 80);
@@ -23,7 +23,7 @@ app.get('/gallop_safely', function(req, res) {
     if (err) throw err
   })
 })
-var k = 0;
+/*var k = 0;
 app.get('/', function(req, res) {
     res.render('layout.jade', {pageTitle: 'wordthings' })
     k += 1;
@@ -96,7 +96,7 @@ function words(rack, res) {
     })
     c.send([arg, dict[i], stars]) 
   }
-}
+}*/
 
 app.get('/robots.txt', function( req, res) {
   res.sendfile('./robots.txt')
