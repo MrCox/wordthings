@@ -1,18 +1,3 @@
-//modifying selection prototype
-var ds = d3.select,
-  da = d3.selectAll,
-  attrs = ['x', 'fill', 'y', 'transform', 'cx', 'r', 'cy', 'class', 'id', 'height', 'width']
-
-d3.selection.prototype.ds = function(_){return this.select(_)};
-d3.selection.prototype.da = function(_){return this.selectAll(_)};
-attrs.forEach(function(a) { 
-  d3.selection.prototype[a] = function(_) { 
-    if (!arguments.length) 
-      return this.attr(a);
-    return this.attr(a, _);
-  };
-});
-
 //converts to percentage
 var x = function(_) {
   var w = window.innerWidth;
@@ -190,9 +175,6 @@ map.findAccessibleNodes = function(data) {
       }).data();
   };
   map.highlightAccessibleNodes(data);
-};
-
-map.updateCollectionScale = function() { 
 };
 
 map.centerMap = function(dur) {

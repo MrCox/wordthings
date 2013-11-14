@@ -21,13 +21,13 @@ var classes = {
   'Other' : 'node Other',
   'Red Corps' : 'node Red Corps'
 }
-var validFields = {'name':null, 
-  'government':null, 
-  'content':null, 
-  'target':null, 
-  'source':null, 
-  'system':null, 
-  'cluster':null, 
+var validFields = {'name':null,
+  'government':null,
+  'content':null,
+  'target':null,
+  'source':null,
+  'system':null,
+  'cluster':null,
   'habitat':null
 }
 
@@ -93,7 +93,6 @@ function Map() {
       var s = this;
       examine(d, i, s);
     })
-  
   linknodes.exit().remove();
 
   mapnodes.enter().append('g')
@@ -109,7 +108,7 @@ function Map() {
     .style('stroke-width', '2')
     .on('mouseover', function(d,i) { 
       var s = this;
-      examine(d, i, s); 
+      examine(d, i, s);
     })
     .on('mouseout', function(d, i) {
       var s = this;
@@ -126,7 +125,7 @@ function Map() {
 
 Map();
 
-var currentScale = .6 
+var currentScale = .6
 
 collection.attr('transform', 'scale(' + currentScale + ')')
 d3.select('#canvas').attr('height', 2500 * currentScale).attr('width', 2500*currentScale)
