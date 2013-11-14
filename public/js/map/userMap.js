@@ -1,4 +1,4 @@
-define(['map'], function(map) {
+define(['map/map'], function(map) {
   //converts to percentage
   var x = function(_) {
     var w = window.innerWidth;
@@ -31,14 +31,14 @@ define(['map'], function(map) {
     milkyWay = ds('#milkyWay').height(2500).width(2500),
     scaling = ds('#scaling'),
     plotRoute = ds('#plotRoute').transform('translate(0,' + y(3) + ')'),
-    hide = ds('#hide').on('click', function() { 
+    hide = ds('#hide').on('click', function() {
       clickMap[ds(this).id()].apply(this, arguments)}),
     title = ds('#title')
-        .on('mouseover', function() { 
+        .on('mouseover', function() {
             ds(this).da('.official')
               .style('stroke-width', '2px');
             advert.style('visibility', null);
-         }).on('mouseout', function() { 
+         }).on('mouseout', function() {
             ds(this).da('.official')
               .style('stroke-width', '1px');
             advert.style('visibility', 'hidden');
@@ -203,19 +203,6 @@ define(['map'], function(map) {
       .attr('width', w * map.factor());
 
     map.centerMap();
-  };
-
-  map.scooch = function(critInd, center, width, margin) {
-    return function(i) {
-      var distance = critInd - i,
-        margin = width / 2;
-     return (i < critInd && distance > 1) ? center - (distance * width + 2 * margin)
-        : (i < critInd && critInd - i <= 1) ? center - (distance * width + margin)
-        : i == critInd ? center
-        : (i > critInd && -distance > 1) ? center + (-distance) * width + 2 * margin
-        : (i > critInd && -distance <= 1) ? center + (-distance) * width + margin
-        : center;
-    };
   };
 
   map.zoom = function(d) {

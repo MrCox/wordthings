@@ -1,4 +1,4 @@
-define(['things', 'data'], function(things, data) {
+define(['map/things', 'map/data'], function(things, data) {
     var Map = {},
       funct = things.functor(Map),
       get = things.get,
@@ -39,10 +39,12 @@ define(['things', 'data'], function(things, data) {
       s.sa('.nodeG').data(nodes).update('g')
         .class('nodeG').call(function(g) {
 
+          //titles
           things.touch(g, 'text')
             .class('nodeTitle')
             .dy('.3em').text(get('name'));
 
+          //circles
           things.touch(s, 'circle').class(function(d) {
               var p = d.government;
               return p in classes ? classes[p] : 'node default';
@@ -67,9 +69,7 @@ define(['things', 'data'], function(things, data) {
         height = Map.buttonHeight(),
         width = Map.buttonWidth(),
         rheight = Map.rowHeight() / 2,
-        critInd = (d.length - 1) / 2,
-        center = (w - width) / 2,
-        scooch = Map.scooch(critInd, center, width);
+        scooch = things.scooch(d.length, w / 2, width);
 
       d3(this).sa('.button').data(id).call(function(buttons) {
           //entering
@@ -101,11 +101,11 @@ define(['things', 'data'], function(things, data) {
         critInd = (data.length - 1) / 2,
         width = x(5),
         center = (w - width) / 2,
-        scooch = Map.scooch(critInd, center, width);
+        scooch = Map.scooch(data.length, Map.width() / 2, 10);
 
       Map.findAccessibleNodes(data);
 
-      if (!(data.length || Map.currentMode() == 'examine')) { 
+      if (!(data.length || Map.currentMode() == 'examine')) {
           var instruct = ds(this).append('text')
             .transform('translate(' + w / 2 + ',' + rheight + ')')
             .class('instructions')
@@ -114,7 +114,7 @@ define(['things', 'data'], function(things, data) {
             .style('opacity', 1);
           instruct.text(
            'Click on a node to plot it; click on a plotted node to remove it.')
-      } else { 
+      } else {
         ds(this).ds('.instructions').transition()
           .style('opacity', 0)
           .remove();
