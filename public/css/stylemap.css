@@ -103,6 +103,10 @@ svg {
   fill-opacity: .6;
 }
 
+.button:hover {
+  stroke-width: 2.5px;
+}
+
 .buttonText {
   fill: GhostWhite;
   fill-opacity: .5
@@ -111,7 +115,7 @@ svg {
   text-anchor: middle;
 }
 
-#map { 
+#map {
   background-color: black;
   text-align:center;
   overflow:auto;
