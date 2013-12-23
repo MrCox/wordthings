@@ -101,14 +101,44 @@ map.zoomEvents = function(s) {
       map.centerMap(400);
     });
 };
+function doModal(d, i) {
+  var m = ds('#modal'),
+    modal = $('#modal').modal({
+      minWidth: 500,
+      escClose: true,
+      overlayClose:true,
+      persist: true,
+      onOpen: function(dialog) {
+        dialog.overlay.fadeIn('fast',function(){
+                            dialog.data.hide();
+                            dialog.container.fadeIn('fast',function(){
+                              dialog.data.fadeIn('fast');
+                            });
+                          });
+                      },
+      onClose: function(dialog) {
+        dialog.data.fadeOut('fast', function() {
+                           dialog.container.fadeOut('fast', function() {
+                             dialog.overlay.fadeOut('fast', function() {
+                               $.modal.close();
+                             });
+                           });
+                         });
+                     }
+    });
+    console.log(d);
+  m.ds('.title').text(d.name);
+  m.ds('.type').text(d.type.toUpperCase());
+  m.ds('.gov').text(d.government.toUpperCase());
+  m.ds('.content').html(d.content);
+};
 
 zoom.transform('translate(' + x(3) + ',0)')
 
 zoom.append('path')
   .transform('translate(' + x(7) + ',' + y(5) + ')')
   .attr('d', d3.svg.symbol().type('cross').size(300))
-  .class('official')
-  .id('more')
+  .class('official').id('more')
   .style('fill-opacity', .5)
   .call(map.zoomEvents);
 
@@ -131,7 +161,7 @@ map.zoomButtons = function() {
 };
 
 //getter-setters
-map.factor = function(_) { 
+map.factor = function(_) {
   if (!arguments.length) return factor;
   factor = _;
   return factor;
@@ -207,13 +237,12 @@ map.centerMap = function(dur) {
 
   collection.transition().duration(dur)
     .attr('transform', 'scale(' + k + ')');
-    
   positionCollection.transition()
     .duration(dur)
     .attr('transform', 'translate(' + newx + ',' + newy + ')');
 };
 
-map.applyScale = function() { 
+map.applyScale = function() {
   var scale = map.currentScale() * map.factor(),
     w = window.innerWidth, h = window.innerHeight,
     width = map.currentScale() * 2500,
@@ -267,14 +296,12 @@ map.zoom = function(d) {
   };
 };
 
-map.buttonEvents = function(s) { 
-  return s.on('click', function(d, i) { 
+map.buttonEvents = function(s) {
+  return s.on('click', function(d, i) {
       clickMap[ds(this).id()].apply(this, arguments);
-    })
-    .on('mouseover', function() { 
+    }).on('mouseover', function() {
       ds(this).style('stroke-width', '2.5px')
-    })
-    .on('mouseout', function() {
+    }).on('mouseout', function() {
       ds(this).style('stroke-width', '2px')
     });
 };
@@ -300,9 +327,8 @@ map.renderControlPanel = function() {
     rows = [dats, []];
 
   //update row data
-  var rows = controlPanel.da('.row')
-    .data(rows)
-  
+  var rows = controlPanel.da('.row').data(rows);
+
   //entering rows
   var rowEnter = rows.enter()
     .append('g')
@@ -327,8 +353,7 @@ map.renderLinks = function(array) {
         .attr('y2', function(d) { return +d.y2 })
     };
 
-  linknodes
-    .call(coords);
+  linknodes.call(coords);
 
   linknodes.enter().insert('line', 'g')
     .call(coords)
@@ -592,18 +617,16 @@ map.renderMap = function() {
 };
 
 // Click handlers
-clickMap.showLinks = function(d, i) { 
+clickMap.showLinks = function(d, i) {
   var modeMap = {'1':'0', '0':'1'},
     mode = ds(this).attr('mode'),
     text = ds(this).select('.buttonText'),
     textMap = {'0' : 'Untoggle Links', '1': 'Toggle Links'};
-   
+
   ds(this).attr('mode', modeMap[mode]);
   text.text(textMap[mode])
-  if (mode == '0')
-    map.renderLinks();
-  if (mode == '1') 
-    map.renderLinks([]);
+  if (mode == '0') map.renderLinks();
+  else if (mode == '1') map.renderLinks([]);
 };
 
 clickMap.planTrip = function(d, i) {
@@ -624,6 +647,7 @@ clickMap.planTrip = function(d, i) {
     plotRoute.da('rect').transition()
       .style('fill-opacity', 0)
       .remove();
+
     plotRoute.da('.instructions').transition()
       .style('fill-opacity', 0)
       .remove();
@@ -633,10 +657,8 @@ clickMap.planTrip = function(d, i) {
   map.currentMode('planTrip');
 
   if (plotRoute.ds('.background').empty()) {
-    plotRoute.append('rect')
-      .class('background')
-      .width(x(100)).height(0)
-      .transition().attr('height', y(8));
+    plotRoute.append('rect').class('background')
+      .width(x(100)).height(0).transition().attr('height', y(8));
   };
 
   plotRoute.each(function(d, i) {
@@ -649,14 +671,15 @@ map.examine = function(d, i) {
   map.nodeEvents[d3.event.type].apply(this, arguments);
 };
 map.nodeEvents = {};
-map.nodeEvents.click = function(d, i) { 
+map.nodeEvents.click = function(d, i) {
   var modeMap = {};
 
   //for zooming in
-  modeMap.examine = map.zoom;
+  /*modeMap.examine = map.zoom;*/
+  modeMap.examine = doModal;
 
   //for graphing routes
-  modeMap.planTrip = function(d, i) { 
+  modeMap.planTrip = function(d, i) {
     var last = map.vertices[map.vertices.length - 1];
     if (!last || last.name != d.name) {
       if (map.accessNodes.indexOf(d.name) != -1 || (!map.accessNodes.length)) {
@@ -665,21 +688,20 @@ map.nodeEvents.click = function(d, i) {
           map.plotRoute.apply(this, arguments);
         });
         if (!ds('.instructions').empty()) {
-          plotRoute.ds('.instructions')
-            .transition()
-            .style('opacity', 0)
-            .remove();
+          plotRoute
+            .ds('.instructions').transition().style('opacity', 0).remove();
         };
       } else {
         var h = window.innerHeight,
           w = window.innerWidth,
           rheight = y(7);
+
         var instruct = plotRoute.append('text')
           .transform('translate(' + x(50) + ',' + rheight + ')')
           .class('instructions')
           .style('opacity', 0);
-        instruct.transition()
-          .style('opacity', 1);
+
+        instruct.transition().style('opacity', 1);
         instruct.text(
          'Valid destinations are highlighted on the map.')
       };
@@ -687,7 +709,7 @@ map.nodeEvents.click = function(d, i) {
   };
   modeMap[map.currentMode()].apply(this, arguments);
 };
-map.nodeEvents.mouseout = function() { 
+map.nodeEvents.mouseout = function() {
   var mode = ds('#showLinks').attr('mode');
   if (mode == '0') { 
     map.renderLinks([]);

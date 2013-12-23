@@ -1,12 +1,79 @@
 svg {
   shape-rendering: optimizeSpeed;
 }
-#frame { 
+
+#simplemodal-overlay {
+  background: #000;
+}
+
+#modal {
+  border-radius: 6px;
+  background-color: #ececec;
+}
+
+#modal li {
+  padding-right: 3px;
+  padding-left: 3px;
+  display: inline-block;
+  list-style: none;
+}
+
+#modal .field {
+  color: #999;
+  font-weight: normal;
+  font-size: 12px;
+  font-style: italic;
+}
+
+#modal ul.info {
+  font-weight: 900;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  text-align: center;
+  color: #000052;
+
+  box-shadow: inset 0px 1px 2px .5px #999;
+  margin-bottom: 0px;
+  padding: 6px;
+  display: inline-block;
+  width: 50%;
+  background-color: #eee;
+}
+
+#modal .title {
+  text-rendering: optimizeLegibility;
+  text-shadow: 1px 1px 1px #fff;
+  text-align: center;
+  font-weight: 900;
+  font-size: 20px;
+  color: #000052;
+
+  padding: 10px;
+  border-radius: 6px 6px 0 0;
+  background-color: #ddd;
+}
+
+#modal .content {
+  text-rendering: optimizeLegibility;
+  text-shadow: 1px 1px 1px #fff;
+  font-weight: 900;
+  font-size: 14px;
+  color: #000052;
+
+  border: 1px solid #999;
+  border-top : 0;
+  background-color: GhostWhite;
+  padding: 20px;
+}
+
+#frame {
   overflow: hidden;
 }
+
 #map {
   overflow: auto;
 }
+
 #canvas {
   t-touch-callout: none;
   -webkit-user-select: none;
@@ -90,7 +157,7 @@ svg {
   stroke: #85ffff;
   stroke-width: 1px;
   fill-opacity: .7;
-  //font-weight: bolder;
+  font-weight: bolder;
   font-size: 100%;
   pointer-events:none;
   text-anchor: middle;

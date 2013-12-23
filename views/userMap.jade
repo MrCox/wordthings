@@ -3,6 +3,8 @@ html
   head
     title = PageTitle
     script(src = '/public/d3.min.js')
+    script(src = "/public/jquery.js")
+    script(src = "/public/modal.js")
     link(rel = 'stylesheet', href = '/public/css/stylemap.css')
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
   body
@@ -23,6 +25,16 @@ html
           g#lazyFix
             g#controlPanel
           g#plotRoute
+    #modal(style='display:none')
+      .title
+      ul.info
+        li.field Node Type :
+        li.type
+      ul.info
+        li.field Central Goverment :
+        li.gov
+      .content
+      .sub
     div.row(style='display:none')
       script(src = '/public/js/data.js')
       script(src = '/public/js/userMap.js')

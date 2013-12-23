@@ -8,7 +8,7 @@ var express = require('express'),
 //process.setMaxListeners(0);
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -16,6 +16,12 @@ app.configure( function() {
   app.use('/public', express.static(__dirname+'/public'));
 })
 var j = 0
+app.get('/', function(req, res) {
+  res.render('mapauth.jade', {PageTitle: 'WHO IS YOUR FATHER?'})
+  fs.appendFile('./count.js', ', ' + j, function(err) {
+    if (err) throw err
+  })
+})
 app.get('/gallop_safely', function(req, res) {
   res.render('mapauth.jade', {PageTitle: 'WHO IS YOUR FATHER?'})
   j += 1
