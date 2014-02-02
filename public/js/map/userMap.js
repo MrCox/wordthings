@@ -1,6 +1,8 @@
 define(['map', 'controlPanel'], function(map, controlPanel) {
-  controlPanel.buttonData([
-    {'id' : 'showLinks', 'text': 'Toggle Links'},
-    {'id' : 'planTrip', 'text': 'Plot Route'}
-  ]);
+  window.onresize = function() {
+    d3.sa('#canvas, #milkyWay').width(window.innerWidth)
+      .height(window.innerHeight);
+  };
+  window.onresize();
+
 });

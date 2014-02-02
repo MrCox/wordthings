@@ -1,7 +1,7 @@
-!!! 5
+doctype html
 html
   head
-    title = PageTitle
+    title Gallop Safely!
     script(src = '/public/d3.js')
     link(rel = 'stylesheet', href = '/public/css/stylemap.css')
     link(rel = 'stylesheet', href = '/public/css/foundation.css')
@@ -10,17 +10,5 @@ html
       svg#canvas
         g#collection
           image#milkyWay(xlink:href = '/public/css/map.png')
-        g#logo
-          g#zoom
-          g#title
-            text.official Map of officially sanctioned
-            text.official <tspan>G</tspan>ALLOPING NODE<tspan>S</tspan>
-            rect.official
-          g
-            text#advert.official2 Brought to you by the Galactic Transit Authority: a proud subsidiary of the Red Corps.
-        g#container
-          g#lazyFix
-            g#controlPanel
-          g#plotRoute
     div.row(style='display:none')
       script(data-main='/public/js/map/userMap.js', src='/public/js/require.js')

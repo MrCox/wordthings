@@ -4,7 +4,7 @@ var express = require('express'),
   fs = require('fs');
 
 app.configure( function() {
-  app.set('port', process.env.PORT || 80);
+  app.set('port', process.env.PORT || 3000);
   app.set('views','./views');
   app.set('views','./views');
   app.set('view engine', 'jade');
@@ -24,28 +24,11 @@ app.get('/', function(req, res) {
 })
 
 app.get('/mapauth', function(req, res) {
-  if (req.query.password == "The eyes are on the roofs and in the alleys.") {
-    res.render('userMap.jade', {PageTitle: 'Gallop Safely!'})
-  } else if ( req.query.password == "It's me, Sut'jinn.") {
-    res.render('for_map.jade', {PageTitle: 'Gallop Safely!'})
-  } else { res.render('mapauth.jade', {PageTitle: "You F*&K3D up."})
-  }
-})
-
-app.get('/mapdata', function(req, res) {
-  var r = req.query.obj
-  var thing ={} 
-  for (var key in r) {
-    thing[key] = r[key]
-  }
-  fs.writeFile('./public/js/data.js', 'GTA_data =' + JSON.stringify(thing), function(err) {
-    if (err) throw (err);
-  })
-  
-  var w = 'It worked, yo'
-  res.json(w)
-})
-
+  var pass = req.query.password;
+  if (pass == "The eyes are on the roofs and in the alleys.")
+    res.render('userMap.jade');
+  else res.render('mapauth.jade');
+});
 http.createServer(app).listen(app.get('port'), function() {
   console.log('listening on port ' + app.get('port'));
-})
+});
